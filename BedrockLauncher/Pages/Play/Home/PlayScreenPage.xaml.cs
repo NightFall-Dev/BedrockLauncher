@@ -23,7 +23,6 @@ namespace BedrockLauncher.Pages.Play.Home
     {
 
 
-
         public PlayScreenPage()
         {
             InitializeComponent();
@@ -108,6 +107,16 @@ namespace BedrockLauncher.Pages.Play.Home
                 bool KeepLauncherOpen = Properties.LauncherSettings.Default.KeepLauncherOpen;
                 MainDataModel.Default.Play(ViewModels.MainDataModel.Default.Config.CurrentProfile, i, KeepLauncherOpen);
             }
+        }
+
+        public void EditorOn(object sender, RoutedEventArgs e)
+        {
+            bool is_Editor = true;
+        }
+
+        public void EditorOff(object sender, RoutedEventArgs e)
+        {
+            bool is_Editor = false;
         }
     }
 }

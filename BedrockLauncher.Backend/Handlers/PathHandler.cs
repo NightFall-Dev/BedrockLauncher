@@ -14,6 +14,7 @@ namespace BedrockLauncher.Handlers
     {
         #region Strings
 
+        public string MinecraftShortcutName { get => "minecraft.url"; } //This file needs to be created at some point
         public string UserDataFileName { get => "user_profile.json"; }
         public string SettingsFileName { get => "settings.json"; }
         public string WinStoreVersionsDBFileName { get => "winstore_versions.json"; }
@@ -33,9 +34,9 @@ namespace BedrockLauncher.Handlers
         public string CurrentLocation { get => (Properties.LauncherSettings.Default.PortableMode ? ExecutableDataDirectory : GetFixedPath()); }
         public string ExecutableLocation { get => System.Reflection.Assembly.GetExecutingAssembly().Location; }
         public string ExecutableDirectory { get => Path.GetDirectoryName(ExecutableLocation); }
-        public string ExecutableDataDirectory 
-        { 
-            get 
+        public string ExecutableDataDirectory
+        {
+            get
             {
                 string path = Path.Combine(ExecutableDirectory, "data");
                 Directory.CreateDirectory(path);

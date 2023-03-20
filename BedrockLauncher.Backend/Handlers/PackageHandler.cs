@@ -1,8 +1,7 @@
-﻿using BedrockLauncher.Classes;
-using BedrockLauncher.Downloaders;
-using JemExtensions;
+﻿using JemExtensions;
 using SymbolicLinkSupport;
 using System;
+using System.ComponentModel;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -26,7 +25,9 @@ using BedrockLauncher.Exceptions;
 using BedrockLauncher.UpdateProcessor;
 using BedrockLauncher.UpdateProcessor.Authentication;
 using BedrockLauncher.UpdateProcessor.Handlers;
+using BedrockLauncher.Classes;
 using BedrockLauncher.Classes.Launcher;
+using BedrockLauncher.Downloaders;
 using Windows.System.Diagnostics;
 using BedrockLauncher.UpdateProcessor.Enums;
 using JemExtensions.WPF.Commands;
@@ -45,16 +46,30 @@ namespace BedrockLauncher.Handlers
 
         #region Public Methods
 
-        public async Task LaunchPackage(MCVersion v, string dirPath, bool KeepLauncherOpen)
+        public async Task LaunchPackage(MCVersion v, string dirPath, bool KeepLauncherOpen, bool LaunchEditor = true)
         {
             try
             {
                 StartTask();
                 MainDataModel.Default.ProgressBarState.SetProgressBarState(LauncherState.isLaunching);
-
-                var pkg = await AppDiagnosticInfo.RequestInfoForPackageAsync(Constants.GetPackageFamily(v.Type));
-                AppActivationResult activationResult = null;
-                if (pkg.Count > 0) activationResult = await pkg[0].LaunchAsync();
+                if (LaunchEditor == false)
+                {
+                    AppActivationResult activationResult = null;
+                    var pkg = await AppDiagnosticInfo.RequestInfoForPackageAsync(Constants.GetPackageFamily(v.Type));
+                    if (pkg.Count > 0) activationResult = await pkg[0].LaunchAsync();
+                }
+                else
+                {
+                    Trace.WriteLine("Launching Bedrock Editor…");
+                    var proc = new ProcessStartInfo("minecraft:?Editor=true")
+                    {
+                        UseShellExecute = true,
+                        Verb = "open"
+                    };
+                    Process.Start(proc);
+                    List<string> activationResult = new List<string>();
+                    activationResult.Add("All good");
+                }
                 Trace.WriteLine("App launch finished!");
                 if (KeepLauncherOpen && activationResult != null) await UpdatePackageHandle(activationResult);
                 if (KeepLauncherOpen == false) await Application.Current.Dispatcher.InvokeAsync(() => Application.Current.MainWindow.Close());
@@ -126,7 +141,7 @@ namespace BedrockLauncher.Handlers
             {
                 SetException(e);
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 SetException(new PackageRemovalFailedException(ex));
             }
@@ -449,21 +464,24 @@ namespace BedrockLauncher.Handlers
                 throw new BetaAuthenticationFailedException(e);
             }
         }
-        private async Task UpdatePackageHandle(AppActivationResult app)
+        private async Task UpdatePackageHandle(AppActivationResult app, bool isEditor)
         {
             await Task.Run(() =>
             {
                 try
                 {
-                    List<ProcessDiagnosticInfo> result = app.AppResourceGroupInfo.GetProcessDiagnosticInfos().ToList();
-                    if (result == null || result.Count == 0) return;
+                    if (isEditor == false)
+                    {
+                        List<ProcessDiagnosticInfo> result = app.AppResourceGroupInfo.GetProcessDiagnosticInfos().ToList();
+                        if (result == null || result.Count == 0) return;
 
-                    MainDataModel.Default.ProgressBarState.SetGameRunningStatus(true);
+                        MainDataModel.Default.ProgressBarState.SetGameRunningStatus(true);
 
-                    var ProcessId = (int)result.First().ProcessId;
-                    GameHandle = Process.GetProcessById(ProcessId);
-                    GameHandle.EnableRaisingEvents = true;
-                    GameHandle.Exited += OnPackageExit;
+                        var ProcessId = (int)result.First().ProcessId;
+                        GameHandle = Process.GetProcessById(ProcessId);
+                        GameHandle.EnableRaisingEvents = true;
+                        GameHandle.Exited += OnPackageExit;
+                    }
                 }
                 catch (PackageManagerException e)
                 {
@@ -566,7 +584,7 @@ namespace BedrockLauncher.Handlers
 
             void SetGenericError(Exception ex)
             {
-                 _ = MainDataModel.BackwardsCommunicationHost.exceptionmsg(ex);
+                _ = MainDataModel.BackwardsCommunicationHost.exceptionmsg(ex);
             }
 
             void SetError(Exception ex2, string debugMessage, string dialogTitle, string dialogText)
