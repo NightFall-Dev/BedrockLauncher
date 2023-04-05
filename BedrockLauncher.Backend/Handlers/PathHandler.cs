@@ -14,7 +14,6 @@ namespace BedrockLauncher.Handlers
     {
         #region Strings
 
-        public string MinecraftShortcutName { get => "minecraft.url"; } //This file needs to be created at some point
         public string UserDataFileName { get => "user_profile.json"; }
         public string SettingsFileName { get => "settings.json"; }
         public string WinStoreVersionsDBFileName { get => "winstore_versions.json"; }
