@@ -22,8 +22,8 @@ namespace BedrockLauncher.UpdateProcessor.Handlers
 
         private int UserTokenIndex = 0;
 
-        private const string communityDBUrl = "http://www.raythnetwork.co.uk/versions.php?type=json";
-        private const string communityDBTechnicalUrl = "http://www.raythnetwork.co.uk/versions.php?type=txt";
+        private const string communityDBUrl = "https://www.raythnetwork.co.uk/versions.php?type=json";
+        private const string communityDBTechnicalUrl = "https://www.raythnetwork.co.uk/versions.php?type=txt";
 
         private string winstoreDBFile;
         private string winstoreDBTechnicalFile;
