@@ -13,15 +13,7 @@
     <SolidColorBrush x:Key="ToolbarButton.Disabled.Foreground" Color="#FF838383"/>
     <SolidColorBrush x:Key="ToolbarButton.Focused.Border" Color="White"/>
 
-    <c:InteractivityTemplate x:Key="ToolbarButton_FocusBehavior">
-        <c:InteractivityItems>
-            <c:InteractivityItems.Triggers>
-                <i:EventTrigger EventName="Click">
-                    <i:InvokeCommandAction Command="{x:Static c:ButtonBehaviors.ToolbarButton_LoseFocus}" PassEventArgsToCommand="True" />
-                </i:EventTrigger>
-            </c:InteractivityItems.Triggers>
-        </c:InteractivityItems>
-    </c:InteractivityTemplate>
+
 
     <Style x:Key="ToolbarButton" TargetType="{x:Type ToggleButton}" xmlns:sys="clr-namespace:System;assembly=mscorlib">
         <Setter Property="FocusVisualStyle">
@@ -45,7 +37,6 @@
         <Setter Property="Padding" Value="10,1"/>
         <Setter Property="FontFamily" Value="/BedrockLauncher;component/Resources/fonts/#Noto Sans"/>
         <Setter Property="FontSize" Value="14"/>
-        <Setter Property="c:InteractivityItems.Template" Value="{DynamicResource ToolbarButton_FocusBehavior}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ToggleButton}">

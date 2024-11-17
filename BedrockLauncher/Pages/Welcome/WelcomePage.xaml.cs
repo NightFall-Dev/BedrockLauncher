@@ -29,7 +29,6 @@ namespace BedrockLauncher.Pages.Welcome
         public static WelcomePageOne pageOne;
         public static WelcomePageTwo pageTwo;
         public static WelcomePageThree pageThree;
-        public static WelcomePageFour pageFour;
         public static WelcomePageFive pageFive;
         public void Init(WelcomePage page)
         {
@@ -47,9 +46,6 @@ namespace BedrockLauncher.Pages.Welcome
                     break;
                 case 3:
                     Page3();
-                    break;
-                case 4:
-                    Page4();
                     break;
                 case 5:
                     Page5();
@@ -98,15 +94,7 @@ namespace BedrockLauncher.Pages.Welcome
                 }
             }
 
-            void Page4()
-            {
-                if (pageFour == null)
-                {
-                    pageFour = new WelcomePageFour();
-                    welcomePage.WelcomePageFrame.Navigate(pageFour);
-                }
-                else { welcomePage.WelcomePageFrame.Navigate(pageFour); }
-            }
+
 
             void Page5()
             {
