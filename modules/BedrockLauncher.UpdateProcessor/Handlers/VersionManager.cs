@@ -22,8 +22,8 @@ namespace BedrockLauncher.UpdateProcessor.Handlers
 
         private int UserTokenIndex = 0;
 
-        private const string communityDBUrl = "http://www.raythnetwork.co.uk/versions.json.min"; //"https://mrarm.io/r/w10-vdb";
-        private const string communityDBTechnicalUrl = "http://www.raythnetwork.co.uk/versions.txt"; //"https://raw.githubusercontent.com/MCMrARM/mc-w10-versiondb/master/versions.txt";
+        private const string communityDBUrl = "https://www.raythnetwork.co.uk/versions.php?type=json";
+        private const string communityDBTechnicalUrl = "https://www.raythnetwork.co.uk/versions.php?type=txt";
 
         private string winstoreDBFile;
         private string winstoreDBTechnicalFile;
@@ -125,6 +125,7 @@ namespace BedrockLauncher.UpdateProcessor.Handlers
         {
             try
             {
+                if (File.Exists(filePath)) File.Delete(filePath);
                 var resp = await HttpClient.GetAsync(url);
                 resp.EnsureSuccessStatusCode();
                 var data = await resp.Content.ReadAsStringAsync();
@@ -144,6 +145,7 @@ namespace BedrockLauncher.UpdateProcessor.Handlers
         {
             try
             {
+                if (File.Exists(filePath)) File.Delete(filePath);
                 await UpdateDB(VersionType.Beta);
                 await UpdateDB(VersionType.Release);
                 await UpdateDB(VersionType.Preview);

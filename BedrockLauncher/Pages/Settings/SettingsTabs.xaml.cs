@@ -13,7 +13,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using BedrockLauncher.Pages.Settings.Accounts;
 using BedrockLauncher.Pages.Settings.General;
 using BedrockLauncher.Pages.Settings.Versions;
 using BedrockLauncher.UI.Components;
@@ -23,7 +22,6 @@ namespace BedrockLauncher.Pages.Settings
     public partial class SettingsTabs : Page
     {
         public GeneralSettingsPage generalSettingsPage = new GeneralSettingsPage();
-        public AccountsSettingsPage accountsSettingsPage = new AccountsSettingsPage();
         public VersionsPage versionsSettingsPage = new VersionsPage();
         public AboutPage aboutPage = new AboutPage();
 
@@ -47,7 +45,6 @@ namespace BedrockLauncher.Pages.Settings
                 List<ToggleButton> toggleButtons = new List<ToggleButton>() {
                 GeneralButton,
                 VersionsButton,
-                AccountsButton,
                 AboutButton
             };
 
@@ -77,7 +74,6 @@ namespace BedrockLauncher.Pages.Settings
                 ResetButtonManager(senderName);
 
                 if (senderName == GeneralButton.Name) NavigateToGeneralPage();
-                else if (senderName == AccountsButton.Name) NavigateToAccountsPage();
                 else if (senderName == AboutButton.Name) NavigateToAboutPage();
                 else if (senderName == VersionsButton.Name) NavigateToVersionsPage();
             });
@@ -97,7 +93,6 @@ namespace BedrockLauncher.Pages.Settings
         public void NavigateToAccountsPage()
         {
             Navigator.UpdatePageIndex(2);
-            Task.Run(() => Navigator.Navigate(SettingsScreenFrame,accountsSettingsPage));
         }
 
         public void NavigateToAboutPage()

@@ -21,6 +21,8 @@ namespace BedrockLauncher
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
+        public static ConsoleWindow cli = new ConsoleWindow();
+
         [STAThread]
         public static void Main()
         {
@@ -38,6 +40,7 @@ namespace BedrockLauncher
         {
             Trace.WriteLine("Application Initalization Started!");
             StartupArgsHandler.SetStartupArgs(e.Args);
+            StartupArgsHandler.RunPreStartupArgs();
             RuntimeHandler.EnableDeveloperMode();
             Trace.WriteLine("Application Initalization Finished!");
         }
@@ -50,7 +53,7 @@ namespace BedrockLauncher
                 LanguageManager.Init();
                 MainDataModel.Default.LoadConfig();
                 await MainDataModel.Default.LoadVersions(true);
-                await MainDataModel.Updater.CheckForUpdatesAsync(true);
+                if (await MainDataModel.Updater.CheckForUpdatesAsync(true)) MainViewModel.Default.UpdateButton.ShowUpdateButton();
                 Trace.WriteLine("Preparing Application: DONE");
             });
         }

@@ -3,8 +3,8 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:viewModel="clr-namespace:BedrockLauncher.ViewModels;assembly=BedrockLauncher.Backend"
-      xmlns:classes="clr-namespace:BedrockLauncher.Classes.Launcher;assembly=BedrockLauncher.Backend"
+      xmlns:viewModel="clr-namespace:BedrockLauncher.ViewModels"
+      xmlns:classes="clr-namespace:BedrockLauncher.Classes.Launcher"
       xmlns:conv="clr-namespace:JemExtensions.WPF.Converters;assembly=JemExtensions"
       xmlns:vwp="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
       xmlns:controls="clr-namespace:BedrockLauncher.Pages.News.Launcher"
@@ -42,10 +42,10 @@
 
                 <Grid Grid.Column="0" Margin="10,0">
                     <StackPanel>
-                        <Label Foreground="White" Content="{DynamicResource GeneralSubtitles_Versions}" Margin="0,10,0,0" FontWeight="Bold" FontFamily="/BedrockLauncher.UI;component/Resources/fonts/#Noto Sans" VerticalAlignment="Top" Background="{x:Null}"/>
+                        <Label Foreground="White" Content="{DynamicResource GeneralSubtitles_Versions}" Margin="0,10,0,0" FontWeight="Bold" FontFamily="/BedrockLauncher;component/Resources/fonts/#Noto Sans" VerticalAlignment="Top" Background="{x:Null}"/>
                         <StackPanel HorizontalAlignment="Left" Height="35" VerticalAlignment="Top" Width="Auto" Orientation="Horizontal" Margin="0,-10,0,0">
-                            <CheckBox x:Name="ReleasesCheckBox" Click="UpdateFilters" IsThreeState="False" IsChecked="{Binding Launcher_ShowReleases}" Content="{DynamicResource ResourceKey=GeneralText_Releases}" Foreground="#FFCCCCCC" FontFamily="/BedrockLauncher.UI;component/Resources/fonts/#Noto Sans" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,0,0,0"></CheckBox>
-                            <CheckBox x:Name="BetasCheckBox" Click="UpdateFilters" IsThreeState="False" IsChecked="{Binding Launcher_ShowBetas}" Content="{DynamicResource ResourceKey=GeneralText_Betas}" Foreground="#FFCCCCCC" FontFamily="/BedrockLauncher.UI;component/Resources/fonts/#Noto Sans" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,0,0,0"></CheckBox>
+                            <CheckBox x:Name="ReleasesCheckBox" Click="UpdateFilters" IsThreeState="False" IsChecked="{Binding Launcher_ShowReleases}" Content="{DynamicResource ResourceKey=GeneralText_Releases}" Foreground="#FFCCCCCC" FontFamily="/BedrockLauncher;component/Resources/fonts/#Noto Sans" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,0,0,0"></CheckBox>
+                            <CheckBox x:Name="BetasCheckBox" Click="UpdateFilters" IsThreeState="False" IsChecked="{Binding Launcher_ShowBetas}" Content="{DynamicResource ResourceKey=GeneralText_Betas}" Foreground="#FFCCCCCC" FontFamily="/BedrockLauncher;component/Resources/fonts/#Noto Sans" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,0,0,0"></CheckBox>
                         </StackPanel>
                     </StackPanel>
                 </Grid>
