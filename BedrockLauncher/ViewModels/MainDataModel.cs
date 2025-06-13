@@ -65,7 +65,7 @@ namespace BedrockLauncher.ViewModels
         public async void KillGame() => await PackageManager.ClosePackage();
         public async void RepairVersion(MCVersion v) => await PackageManager.DownloadPackage(v);
         public async void RemoveVersion(MCVersion v) => await PackageManager.RemovePackage(v);
-        public async void Play(BLProfile p, BLInstallation i, bool KeepLauncherOpen, bool Save = true)
+        public async void Play(BLProfile p, BLInstallation i, bool KeepLauncherOpen, bool LaunchEditor, bool Save = true)
         {
             if (i == null) return;
 
@@ -82,7 +82,7 @@ namespace BedrockLauncher.ViewModels
             var Path = MainDataModel.Default.FilePaths.GetInstallationPackageDataPath(p.UUID, i.DirectoryName_Full);
 
             await PackageManager.InstallPackage(Version, Path);
-            await PackageManager.LaunchPackage(Version, Path, KeepLauncherOpen);
+            await PackageManager.LaunchPackage(Version, Path, KeepLauncherOpen, LaunchEditor);
         }
 
         public async void Install(BLProfile p, BLInstallation i)

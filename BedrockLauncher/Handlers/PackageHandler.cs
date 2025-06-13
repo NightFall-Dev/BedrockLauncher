@@ -47,36 +47,19 @@ namespace BedrockLauncher.Handlers
 
         #region Public Methods
 
-        public async Task LaunchPackage(MCVersion v, string dirPath, bool KeepLauncherOpen, bool LaunchEditor = true)
+        public async Task LaunchPackage(MCVersion v, string dirPath, bool KeepLauncherOpen, bool LaunchEditor)
         {
             try
             {
-                Trace.WriteLine("Launching normally…");
-                StartTask();
-                MainDataModel.Default.ProgressBarState.SetProgressBarState(LauncherState.isLaunching);
-                if (LaunchEditor == false)
+                if (await Launcher.LaunchUriAsync(new Uri($"{Constants.GetUri(v.Type)}:?Editor={LaunchEditor}")))
                 {
-                    AppActivationResult activationResult = null;
-                    var pkg = await AppDiagnosticInfo.RequestInfoForPackageAsync(Constants.GetPackageFamily(v.Type));
-                    if (pkg.Count > 0) activationResult = await pkg[0].LaunchAsync();
-                    if (KeepLauncherOpen && activationResult != null) await UpdatePackageHandle(activationResult);
+                    Trace.WriteLine("App launch finished!");
+                    if (KeepLauncherOpen == false) await Application.Current.Dispatcher.InvokeAsync(() => Application.Current.MainWindow.Close());
                 }
                 else
                 {
-                    Trace.WriteLine("Launching Bedrock Editor…");
-                    var proc = new ProcessStartInfo("minecraft:?Editor=true")
-                    {
-                        UseShellExecute = true,
-                        Verb = "open"
-                    };
-                    //if (KeepLauncherOpen) await UpdatePackageHandleEditor();
+                    SetException(new AppLaunchFailedException($"Failed to open {Constants.GetUri(v.Type)} URI", new Exception()));
                 }
-                Trace.WriteLine("App launch finished!");
-                if (KeepLauncherOpen == false) await Application.Current.Dispatcher.InvokeAsync(() => Application.Current.MainWindow.Close());
-            }
-            catch (PackageManagerException e)
-            {
-                SetException(e);
             }
             catch (Exception e)
             {
@@ -230,7 +213,7 @@ namespace BedrockLauncher.Handlers
                 }
                 string dlPath = "Minecraft-" + v.Name + ".Appx";
                 //string dlPath = Path.Combine(subDirectory, "Minecraft-" + v.Name + ".Appx");
-                if (!File.Exists(Path.Combine(subDirectory,dlPath))) await DownloadPackage(v, dlPath, CancelSource);
+                if (!File.Exists(Path.Combine(subDirectory, dlPath))) await DownloadPackage(v, dlPath, CancelSource);
                 else File.Move(Path.Combine(MainDataModel.Default.FilePaths.VersionsFolder, "AppxBackups", dlPath), dlPath); ;
                 await ExtractPackage(v, dlPath, CancelSource);
 
@@ -503,7 +486,7 @@ namespace BedrockLauncher.Handlers
                     GameHandle = Process.GetProcessById(ProcessId);
                     GameHandle.EnableRaisingEvents = true;
                     GameHandle.Exited += OnPackageExit;
-                    
+
                 }
                 catch (PackageManagerException e)
                 {
@@ -639,7 +622,7 @@ namespace BedrockLauncher.Handlers
 
             void SetGenericError(Exception ex)
             {
-                 _ = MainDataModel.BackwardsCommunicationHost.exceptionmsg(ex);
+                _ = MainDataModel.BackwardsCommunicationHost.exceptionmsg(ex);
             }
 
             void SetError(Exception ex2, string debugMessage, string dialogTitle, string dialogText)

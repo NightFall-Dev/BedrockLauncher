@@ -18,6 +18,9 @@ namespace BedrockLauncher
         private static readonly string MINECRAFT_PACKAGE_FAMILY = "Microsoft.MinecraftUWP_8wekyb3d8bbwe";
         private static readonly string MINECRAFT_PREVIEW_PACKAGE_FAMILY = "Microsoft.MinecraftWindowsBeta_8wekyb3d8bbwe";
 
+        private const string MINECRAFT_URI = "minecraft";   // both release and beta
+        private const string MINECRAFT_PREVIEW_URI = "minecraft-preview";
+
         public static readonly string LATEST_BETA_UUID = "latest_beta";
         public static readonly string LATEST_RELEASE_UUID = "latest_release";
         public static readonly string LATEST_PREVIEW_UUID = "latest_preview";
@@ -60,6 +63,10 @@ namespace BedrockLauncher
             return type == VersionType.Preview ? MINECRAFT_PREVIEW_PACKAGE_FAMILY : MINECRAFT_PACKAGE_FAMILY;
         }
 
+        internal static string GetUri(VersionType type)
+        {
+            return type == VersionType.Preview ? MINECRAFT_PREVIEW_URI : MINECRAFT_URI;
+        }
 
         public const string ThemesCustomPrefix = "[+] ";
         private const string ThemesPathPrefix = APP_RESOURCEPATH_PREFIX + @"resources/images/bg/play_screen/";
