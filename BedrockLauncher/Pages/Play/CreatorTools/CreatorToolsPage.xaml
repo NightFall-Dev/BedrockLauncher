@@ -1,4 +1,4 @@
-﻿<Page x:Class="BedrockLauncher.Pages.Play.Home.PlayScreenPage"
+<Page x:Class="BedrockLauncher.Pages.Play.CreatorTools.CreatorToolsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -40,7 +40,7 @@
                     <BlurEffect Radius="1"></BlurEffect>
                 </Grid.Effect>
             </Grid>
-
+            <!--
             <Image x:Name="BugrockOfTheWeekLogo" VerticalAlignment="Top" HorizontalAlignment="Center" Grid.Column="1" Grid.Row="1" MaxHeight="{DynamicResource MaxLogoHeight}" Source="/BedrockLauncher;component/resources/images/logo/OfTheWeek.png" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" >
                 <Image.RenderTransform>
                     <TransformGroup>
@@ -122,12 +122,12 @@
                     </EventTrigger>
                 </Image.Triggers>
             </Image>
-
+               -->
         </Grid>
         <Grid x:Name="PlayScreenBorder" Grid.Row="1" x:FieldModifier="public" VerticalAlignment="Bottom" Background="#FF262626">
             <TextBlock Style="{DynamicResource HeaderTextblock}" Text="{DynamicResource MainWindow_Disclaimer}" HorizontalAlignment="Right" Panel.ZIndex="0" VerticalAlignment="Center" Padding="0,0,5,0" Margin="0,0,0,0"/>
             <Button IsEnabled="{Binding Source={x:Static viewModels:MainDataModel.Default},Path=ProgressBarState.AllowPlaying, Mode=OneWay}" x:Name="MainPlayButton" Click="MainPlayButton_Click" HorizontalAlignment="Center" Margin="286,-8,286,0" VerticalAlignment="Top" Width="250" Height="56" Padding="0" Style="{DynamicResource BigGreenButton}">
-                <TextBlock x:Name="PlayButtonText" Style="{DynamicResource BigGreenButton_Text}" Text="{Binding Source={x:Static viewModels:MainDataModel.Default}, Path=ProgressBarState.PlayButtonString, Mode=OneWay}"/>
+                <TextBlock x:Name="PlayButtonText" Style="{DynamicResource BigGreenButtonEditor_Text}" Text="{Binding Source={x:Static viewModels:MainDataModel.Default}, Path=ProgressBarState.PlayButtonString, Mode=OneWay}"/>
             </Button>
             <controls:InstallationSelector x:Name="InstallationsList" 
                                            ItemsSource="{Binding Config.CurrentInstallations}" 

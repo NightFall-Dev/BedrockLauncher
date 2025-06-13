@@ -21,12 +21,9 @@ namespace BedrockLauncher.Pages.Play.Home
 {
     public partial class PlayScreenPage : Page
     {
-        public bool EditorToggle { get; set; } = false;
-
         public PlayScreenPage()
         {
             InitializeComponent();
-            editorCheckbox.DataContext = this;
         }
 
         private string GetLatestImage()
@@ -106,7 +103,7 @@ namespace BedrockLauncher.Pages.Play.Home
             {
                 var i = InstallationsList.SelectedItem as BLInstallation;
                 bool KeepLauncherOpen = Properties.LauncherSettings.Default.KeepLauncherOpen;
-                MainDataModel.Default.Play(ViewModels.MainDataModel.Default.Config.CurrentProfile, i, KeepLauncherOpen, EditorToggle);
+                MainDataModel.Default.Play(ViewModels.MainDataModel.Default.Config.CurrentProfile, i, KeepLauncherOpen, false);
             }
         }
     }

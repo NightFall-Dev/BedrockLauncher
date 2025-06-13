@@ -9,6 +9,7 @@ using System.Windows.Data;
 using System.Windows.Media.Animation;
 using BedrockLauncher.Classes;
 using BedrockLauncher.Downloaders;
+using BedrockLauncher.Pages.Play.CreatorTools;
 using BedrockLauncher.Pages.Play.Home;
 using BedrockLauncher.Pages.Play.Installations;
 using BedrockLauncher.Pages.Play.PatchNotes;
@@ -22,6 +23,7 @@ namespace BedrockLauncher.Pages.Play
 
         public PlayScreenPage playScreenPage = new PlayScreenPage();
         public InstallationsScreen installationsScreen = new InstallationsScreen();
+        public CreatorToolsPage creatorToolsPage = new CreatorToolsPage();
         public PatchNotesPage patchNotesPage = new PatchNotesPage(PatchNotesDownloader);
 
         private Navigator Navigator { get; set; } = new Navigator();
@@ -44,6 +46,7 @@ namespace BedrockLauncher.Pages.Play
                 // but this works fine, at least
                 List<ToggleButton> toggleButtons = new List<ToggleButton>() {
                 PlayButton,
+                CreatorToolsButton,
                 InstallationsButton,
                 //PatchNotesButton
             };
@@ -76,6 +79,7 @@ namespace BedrockLauncher.Pages.Play
 
                 if (senderName == PlayButton.Name) NavigateToPlayScreen();
                 else if (senderName == InstallationsButton.Name) NavigateToInstallationsPage();
+                else if (senderName == CreatorToolsButton.Name) NavigateToCreatorToolsPage();
                 //else if (senderName == PatchNotesButton.Name) NavigateToPatchNotes();
             });
         }
@@ -92,6 +96,13 @@ namespace BedrockLauncher.Pages.Play
             Navigator.UpdatePageIndex(1);
             InstallationsButton.IsChecked = true;
             Task.Run(() => Navigator.Navigate(MainPageFrame, installationsScreen));
+        }
+
+        public void NavigateToCreatorToolsPage()
+        {
+            Navigator.UpdatePageIndex(2);
+            InstallationsButton.IsChecked = true;
+            Task.Run(() => Navigator.Navigate(MainPageFrame, creatorToolsPage));
         }
 
         public void NavigateToPatchNotes()
