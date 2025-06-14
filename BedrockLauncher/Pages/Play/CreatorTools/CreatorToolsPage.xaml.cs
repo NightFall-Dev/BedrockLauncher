@@ -11,7 +11,7 @@ namespace BedrockLauncher.Pages.Play.CreatorTools
 {
     public partial class CreatorToolsPage : Page
     {
-        public CreatorToolsPage() 
+        public CreatorToolsPage()
         {
             InitializeComponent();
         }
@@ -27,23 +27,6 @@ namespace BedrockLauncher.Pages.Play.CreatorTools
             }
         }
 
-        private void Grid_Loaded(object sender, RoutedEventArgs e)
-        {
-            this.Dispatcher.Invoke(() =>
-            {
-                string packUri = string.Empty;
-                string currentTheme = Properties.LauncherSettings.Default.CurrentTheme;
-
-                try
-                {
-                    var bmp = new BitmapImage(new Uri(packUri, UriKind.Absolute));
-                    ImageBrush.ImageSource = bmp;
-                }
-                catch (Exception ex)
-                {
-                    Trace.TraceError(ex.ToString());
-                }
-            });
-        }
+        private void Grid_Loaded(object sender, RoutedEventArgs e) { }
     }
 }

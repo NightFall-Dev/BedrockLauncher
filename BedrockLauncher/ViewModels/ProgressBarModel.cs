@@ -48,6 +48,16 @@ namespace BedrockLauncher.ViewModels
                 else return Application.Current.FindResource("InstallationsPage_PlayButton").ToString();
             }
         }
+        public string PlayEditorButtonString
+        {
+            get
+            {
+                Depends.On(IsGameRunning, PlayButtonLanguageChanged);
+                if (IsGameRunning) return Application.Current.FindResource("GameTab_PlayButton_Kill_Text").ToString();
+                else return Application.Current.FindResource("InstallationsPage_PlayEditorButton").ToString();
+            }
+        }
+
         public bool AllowEditing
         {
             get

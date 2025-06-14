@@ -21,6 +21,8 @@ namespace BedrockLauncher
         private const string MINECRAFT_URI = "minecraft";   // both release and beta
         private const string MINECRAFT_PREVIEW_URI = "minecraft-preview";
 
+        public const string MINECRAFT_PROCESS_NAME = "Minecraft.Windows";
+
         public static readonly string LATEST_BETA_UUID = "latest_beta";
         public static readonly string LATEST_RELEASE_UUID = "latest_release";
         public static readonly string LATEST_PREVIEW_UUID = "latest_preview";

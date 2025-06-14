@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -44,18 +45,16 @@ namespace BedrockLauncher.Pages.Play
                 // just all buttons list
                 // ya i know this is really bad, i need to learn mvvm instead of doing this shit
                 // but this works fine, at least
-                List<ToggleButton> toggleButtons = new List<ToggleButton>() {
+                ToggleButton[] toggleButtons = new ToggleButton[] {
                 PlayButton,
                 CreatorToolsButton,
                 InstallationsButton,
                 //PatchNotesButton
             };
 
-                foreach (ToggleButton button in toggleButtons) { button.IsChecked = false; }
-
-                if (toggleButtons.Exists(x => x.Name == buttonName))
+                foreach (ToggleButton button in toggleButtons)
                 {
-                    toggleButtons.Where(x => x.Name == buttonName).FirstOrDefault().IsChecked = true;
+                    button.IsChecked = button.Name == buttonName;
                 }
             });
 
@@ -87,28 +86,24 @@ namespace BedrockLauncher.Pages.Play
         public void NavigateToPlayScreen()
         {
             Navigator.UpdatePageIndex(0);
-            PlayButton.IsChecked = true;
             Task.Run(() => Navigator.Navigate(MainPageFrame, playScreenPage));
 
         }
         public void NavigateToInstallationsPage()
         {
             Navigator.UpdatePageIndex(1);
-            InstallationsButton.IsChecked = true;
             Task.Run(() => Navigator.Navigate(MainPageFrame, installationsScreen));
         }
 
         public void NavigateToCreatorToolsPage()
         {
             Navigator.UpdatePageIndex(2);
-            InstallationsButton.IsChecked = true;
             Task.Run(() => Navigator.Navigate(MainPageFrame, creatorToolsPage));
         }
 
         public void NavigateToPatchNotes()
         {
             Navigator.UpdatePageIndex(3);
-            //PatchNotesButton.IsChecked = true;
             Task.Run(() => Navigator.Navigate(MainPageFrame, patchNotesPage));
         }
 

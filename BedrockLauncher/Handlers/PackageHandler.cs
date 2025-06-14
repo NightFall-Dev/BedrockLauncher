@@ -32,6 +32,7 @@ using Windows.System.Diagnostics;
 using BedrockLauncher.UpdateProcessor.Enums;
 using JemExtensions.WPF.Commands;
 using BedrockLauncher.UI.Pages.Common;
+using System.Collections;
 
 namespace BedrockLauncher.Handlers
 {
@@ -54,7 +55,10 @@ namespace BedrockLauncher.Handlers
                 if (await Launcher.LaunchUriAsync(new Uri($"{Constants.GetUri(v.Type)}:?Editor={LaunchEditor}")))
                 {
                     Trace.WriteLine("App launch finished!");
-                    if (KeepLauncherOpen == false) await Application.Current.Dispatcher.InvokeAsync(() => Application.Current.MainWindow.Close());
+                    if (KeepLauncherOpen == false)
+                        await Application.Current.Dispatcher.InvokeAsync(() => Application.Current.MainWindow.Close());
+                    else
+                        await GetGameHandle(Constants.MINECRAFT_PROCESS_NAME);
                 }
                 else
                 {
@@ -70,6 +74,8 @@ namespace BedrockLauncher.Handlers
                 EndTask();
             }
         }
+
+
         public async Task InstallPackage(MCVersion v, string dirPath)
         {
             try
@@ -100,8 +106,8 @@ namespace BedrockLauncher.Handlers
         {
             if (GameHandle != null)
             {
-                var title = BedrockLauncher.Localization.Language.LanguageManager.GetResource("Dialog_KillGame_Title") as string;
-                var content = BedrockLauncher.Localization.Language.LanguageManager.GetResource("Dialog_KillGame_Text") as string;
+                string title = BedrockLauncher.Localization.Language.LanguageManager.GetResource("Dialog_KillGame_Title") as string;
+                string content = BedrockLauncher.Localization.Language.LanguageManager.GetResource("Dialog_KillGame_Text") as string;
                 var result = await DialogPrompt.ShowDialog_YesNo(title, content);
 
                 if (result == System.Windows.Forms.DialogResult.Yes) GameHandle.Kill();
@@ -198,6 +204,53 @@ namespace BedrockLauncher.Handlers
         #endregion
 
         #region Private Throwable Methods
+
+        private async Task GetGameHandle(string processName)
+        {
+            await Task.Run(() =>
+            {
+                try
+                {
+                    Process[] MinecraftProcesses = Process.GetProcessesByName(processName);
+                    while (MinecraftProcesses.Length == 0)
+                        Process.GetProcessesByName(processName);
+
+                    if (MinecraftProcesses.Length == 1)
+                    {
+                        MainDataModel.Default.ProgressBarState.SetGameRunningStatus(true);
+                        GameHandle = MinecraftProcesses[0];
+                        GameHandle.EnableRaisingEvents = true;
+                        GameHandle.Exited += OnPackageExit;
+
+
+                        void OnPackageExit(object sender, EventArgs e)
+                        {
+                            Process p = sender as Process;
+                            p.Exited -= OnPackageExit;
+                            GameHandle = null;
+                            MainDataModel.Default.ProgressBarState.SetGameRunningStatus(false);
+                        }
+
+                        Trace.WriteLine("Successfully attached Minecraft process");
+                    }
+                    else
+                    {
+                        Trace.WriteLine("Failed to attach Minecraft process: Too many processes found");
+                        GameHandle = null;
+                        MainDataModel.Default.ProgressBarState.SetGameRunningStatus(false);
+                    }
+                }
+                catch (InvalidOperationException e)
+                {
+                    throw e;
+                }
+                catch (Exception e)
+                {
+                    throw new PackageProcessHookFailedException(e);
+                }
+            });
+
+        }
 
         private async Task DownloadAndExtractPackage(MCVersion v)
         {
@@ -470,77 +523,6 @@ namespace BedrockLauncher.Handlers
                 throw new BetaAuthenticationFailedException(e);
             }
         }
-        private async Task UpdatePackageHandle(AppActivationResult app)
-        {
-            await Task.Run(() =>
-            {
-                try
-                {
-                    List<ProcessDiagnosticInfo> result = app.AppResourceGroupInfo.GetProcessDiagnosticInfos().ToList();
-                    if (result == null || result.Count == 0) return;
-
-                    Trace.WriteLine(result);
-                    MainDataModel.Default.ProgressBarState.SetGameRunningStatus(true);
-
-                    var ProcessId = (int)result.First().ProcessId;
-                    GameHandle = Process.GetProcessById(ProcessId);
-                    GameHandle.EnableRaisingEvents = true;
-                    GameHandle.Exited += OnPackageExit;
-
-                }
-                catch (PackageManagerException e)
-                {
-                    throw e;
-                }
-                catch (Exception ex)
-                {
-                    throw new PackageProcessHookFailedException(ex);
-                }
-            });
-
-
-            void OnPackageExit(object sender, EventArgs e)
-            {
-                Process p = sender as Process;
-                p.Exited -= OnPackageExit;
-                GameHandle = null;
-                MainDataModel.Default.ProgressBarState.SetGameRunningStatus(false);
-            }
-        }
-
-        private async Task UpdatePackageHandleEditor()
-        {
-            await Task.Run(() =>
-            {
-                try
-                {
-                    MainDataModel.Default.ProgressBarState.SetGameRunningStatus(true);
-
-                    //var ProcessId = (int)result.First().ProcessId;
-                    //GameHandle = Process.GetProcessById(ProcessId);
-                    //GameHandle.EnableRaisingEvents = true;
-                    //GameHandle.Exited += OnPackageExit;
-                }
-                catch (PackageManagerException e)
-                {
-                    throw e;
-                }
-                catch (Exception ex)
-                {
-                    throw new PackageProcessHookFailedException(ex);
-                }
-            });
-
-
-            void OnPackageExit(object sender, EventArgs e)
-            {
-                Process p = sender as Process;
-                p.Exited -= OnPackageExit;
-                GameHandle = null;
-                MainDataModel.Default.ProgressBarState.SetGameRunningStatus(false);
-            }
-        }
-
         #endregion
 
         #region Helpers
