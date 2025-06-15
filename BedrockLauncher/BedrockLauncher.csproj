@@ -622,6 +622,9 @@
 		<Resource Include="Resources\fonts\Noto Sans\NotoSansTC-Thin.otf" />
 		<Resource Include="Resources\fonts\WINGDNG3.TTF" />
 		<Resource Include="Resources\fonts\X360.ttf" />
+		<Content Include="Resources\images\ui\decorations\EditorBannerDecoration.png">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
 		<Resource Include="Resources\images\ui\panels\MainPagePlayButton.png" />
 		<Resource Include="Resources\images\ui\panels\MainPagePlayButtonFocusOver.png" />
 		<Resource Include="Resources\images\ui\panels\MainPagePlayButtonOver.png" />
@@ -703,6 +706,7 @@
 		<None Remove="Resources\fonts\Noto Sans\NotoSansTC-Thin.otf" />
 		<None Remove="Resources\fonts\WINGDNG3.TTF" />
 		<None Remove="Resources\fonts\X360.ttf" />
+		<None Remove="Resources\images\ui\decorations\EditorBannerDecoration.png" />
 		<None Remove="Resources\images\ui\panels\MainPagePlayButton.png" />
 		<None Remove="Resources\images\ui\panels\MainPagePlayButtonFocusOver.png" />
 		<None Remove="Resources\images\ui\panels\MainPagePlayButtonOver.png" />
