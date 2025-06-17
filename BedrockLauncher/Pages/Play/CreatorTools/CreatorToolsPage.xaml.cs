@@ -1,6 +1,10 @@
 ﻿using BedrockLauncher.Classes;
+using BedrockLauncher.Pages.Play.Installations.Components;
+using BedrockLauncher.UpdateProcessor.Enums;
 using BedrockLauncher.ViewModels;
+using PostSharp.Patterns.Model;
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
@@ -14,6 +18,26 @@ namespace BedrockLauncher.Pages.Play.CreatorTools
         public CreatorToolsPage()
         {
             InitializeComponent();
+            InstallationsList.SelectionChanged += CheckEditorCompatility;
+            ((INotifyPropertyChanged)MainDataModel.Default.ProgressBarState).PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(MainDataModel.Default.ProgressBarState.AllowPlaying))
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        CheckEditorCompatility(s, e);
+                    });
+            }; ;
+        }
+
+        private void CheckEditorCompatility(object _, EventArgs __)
+        {
+            BLInstallation selectedInstallation = InstallationsList.SelectedItem as BLInstallation;
+            if (MainDataModel.Default.PackageManager.isGameRunning)
+                EditorPlayButton.IsEnabled = true;
+            else if (selectedInstallation.Version is null)
+                EditorPlayButton.IsEnabled = MainDataModel.Default.ProgressBarState.AllowPlaying;
+            else
+                EditorPlayButton.IsEnabled = MainDataModel.Default.ProgressBarState.AllowPlaying && selectedInstallation.Version?.Compare(Constants.GetMinimumEditorVersion(selectedInstallation.VersionType)) <= 0;
         }
 
         private void MainPlayButton_Click(object sender, RoutedEventArgs e)

@@ -1,4 +1,5 @@
-﻿using BedrockLauncher.UpdateProcessor.Enums;
+﻿using BedrockLauncher.Classes;
+using BedrockLauncher.UpdateProcessor.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -60,6 +61,9 @@ namespace BedrockLauncher
         public static readonly string PROFILE_DEFAULT_IMG = APP_RESOURCEPATH_PREFIX + @"resources/images/icons/user_icon.png";
         public static readonly string PROFILE_CUSTOM_IMG_NAME = ".profile.png";
 
+        public const string FIRST_EDITOR_RELEASE = "1.21.50";
+        public const string FIRST_EDITOR_PREVIEW = "1.19.80.20";
+
         internal static string GetPackageFamily(VersionType type)
         {
             return type == VersionType.Preview ? MINECRAFT_PREVIEW_PACKAGE_FAMILY : MINECRAFT_PACKAGE_FAMILY;
@@ -68,6 +72,11 @@ namespace BedrockLauncher
         internal static string GetUri(VersionType type)
         {
             return type == VersionType.Preview ? MINECRAFT_PREVIEW_URI : MINECRAFT_URI;
+        }
+
+        internal static MCVersion GetMinimumEditorVersion(VersionType type)
+        {
+            return new MCVersion(type == VersionType.Preview ? FIRST_EDITOR_PREVIEW : FIRST_EDITOR_RELEASE);
         }
 
         public const string ThemesCustomPrefix = "[+] ";
