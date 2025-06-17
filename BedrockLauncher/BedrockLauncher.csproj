@@ -622,9 +622,8 @@
 		<Resource Include="Resources\fonts\Noto Sans\NotoSansTC-Thin.otf" />
 		<Resource Include="Resources\fonts\WINGDNG3.TTF" />
 		<Resource Include="Resources\fonts\X360.ttf" />
-		<Content Include="Resources\images\ui\decorations\EditorBannerDecoration.png">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
+		<Resource Include="Resources\images\bg\creatortools_screen\editor-header-image.png" />
+		<Resource Include="Resources\images\ui\decorations\EditorBannerDecoration.png" />
 		<Resource Include="Resources\images\ui\panels\MainPagePlayButton.png" />
 		<Resource Include="Resources\images\ui\panels\MainPagePlayButtonFocusOver.png" />
 		<Resource Include="Resources\images\ui\panels\MainPagePlayButtonOver.png" />
@@ -632,6 +631,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<None Remove="Pages\General\FeedItem_PatchNotes.xaml.cs~RF88027b.TMP" />
+		<None Remove="Resources\images\bg\creatortools_screen\editor-header-image.png" />
 		<None Remove="Resources\images\bg\play_screen\1.17_caves_and_cliffs_part_2.jpg" />
 		<None Remove="Resources\images\bg\play_screen\1.19_the_wild_update.jpg" />
 		<None Remove="Resources\images\bg\play_screen\bedrock_and_java_together.jpg" />

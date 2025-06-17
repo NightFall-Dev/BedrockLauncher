@@ -36,7 +36,7 @@
             </Grid.ColumnDefinitions>
             <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="2" Grid.ColumnSpan="3" Grid.RowSpan="2">
                 <Grid.Background>
-                    <ImageBrush Stretch="UniformToFill" RenderOptions.BitmapScalingMode="Fant" x:Name="ImageBrush" ImageSource="/Resources/images/bg/play_screen/1.0_pocket_edition.jpg"/>
+                    <ImageBrush Stretch="UniformToFill" RenderOptions.BitmapScalingMode="Fant" x:Name="ImageBrush" ImageSource="/Resources/images/bg/creatortools_screen/editor-header-image.png"/>
                 </Grid.Background>
                 <Grid.Effect>
                     <BlurEffect Radius="1"></BlurEffect>
