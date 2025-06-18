@@ -1,4 +1,5 @@
-﻿using BedrockLauncher.UpdateProcessor.Enums;
+﻿using BedrockLauncher.Classes;
+using BedrockLauncher.UpdateProcessor.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,11 @@ namespace BedrockLauncher
 
         private static readonly string MINECRAFT_PACKAGE_FAMILY = "Microsoft.MinecraftUWP_8wekyb3d8bbwe";
         private static readonly string MINECRAFT_PREVIEW_PACKAGE_FAMILY = "Microsoft.MinecraftWindowsBeta_8wekyb3d8bbwe";
+
+        private const string MINECRAFT_URI = "minecraft";   // both release and beta
+        private const string MINECRAFT_PREVIEW_URI = "minecraft-preview";
+
+        public const string MINECRAFT_PROCESS_NAME = "Minecraft.Windows";
 
         public static readonly string LATEST_BETA_UUID = "latest_beta";
         public static readonly string LATEST_RELEASE_UUID = "latest_release";
@@ -55,11 +61,23 @@ namespace BedrockLauncher
         public static readonly string PROFILE_DEFAULT_IMG = APP_RESOURCEPATH_PREFIX + @"resources/images/icons/user_icon.png";
         public static readonly string PROFILE_CUSTOM_IMG_NAME = ".profile.png";
 
+        public const string FIRST_EDITOR_RELEASE = "1.21.50";
+        public const string FIRST_EDITOR_PREVIEW = "1.19.80.20";
+
         internal static string GetPackageFamily(VersionType type)
         {
             return type == VersionType.Preview ? MINECRAFT_PREVIEW_PACKAGE_FAMILY : MINECRAFT_PACKAGE_FAMILY;
         }
 
+        internal static string GetUri(VersionType type)
+        {
+            return type == VersionType.Preview ? MINECRAFT_PREVIEW_URI : MINECRAFT_URI;
+        }
+
+        internal static MCVersion GetMinimumEditorVersion(VersionType type)
+        {
+            return new MCVersion(type == VersionType.Preview ? FIRST_EDITOR_PREVIEW : FIRST_EDITOR_RELEASE);
+        }
 
         public const string ThemesCustomPrefix = "[+] ";
         private const string ThemesPathPrefix = APP_RESOURCEPATH_PREFIX + @"resources/images/bg/play_screen/";

@@ -34,9 +34,9 @@ namespace BedrockLauncher.Handlers
         public string CurrentLocation { get => (Properties.LauncherSettings.Default.PortableMode ? ExecutableDataDirectory : GetFixedPath()); }
         public string ExecutableLocation { get => System.Reflection.Assembly.GetEntryAssembly().Location; }
         public string ExecutableDirectory { get => Path.GetDirectoryName(ExecutableLocation); }
-        public string ExecutableDataDirectory 
-        { 
-            get 
+        public string ExecutableDataDirectory
+        {
+            get
             {
                 string path = Path.Combine(ExecutableDirectory, "data");
                 Directory.CreateDirectory(path);

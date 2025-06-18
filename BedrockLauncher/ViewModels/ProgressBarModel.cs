@@ -1,5 +1,11 @@
-﻿using System;
+﻿using BedrockLauncher.Classes;
+using BedrockLauncher.Enums;
+using JemExtensions;
+using PostSharp.Patterns.Model;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,11 +13,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
-using PostSharp.Patterns.Model;
-using BedrockLauncher.Enums;
-using JemExtensions;
 using S = JemExtensions.SpecialExtensions;
-using System.ComponentModel;
 
 namespace BedrockLauncher.ViewModels
 {
@@ -28,6 +30,7 @@ namespace BedrockLauncher.ViewModels
         private void ProgressBarModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(Show)) GetProgressBarAnim();
+            //else if (e.PropertyName == nameof(AllowPlaying))
         }
 
         #endregion
@@ -48,6 +51,16 @@ namespace BedrockLauncher.ViewModels
                 else return Application.Current.FindResource("InstallationsPage_PlayButton").ToString();
             }
         }
+        public string PlayEditorButtonString
+        {
+            get
+            {
+                Depends.On(IsGameRunning, PlayButtonLanguageChanged);
+                if (IsGameRunning) return Application.Current.FindResource("GameTab_PlayButton_Kill_Text").ToString();
+                else return Application.Current.FindResource("CreatorToolsPage_PlayEditorButton").ToString();
+            }
+        }
+
         public bool AllowEditing
         {
             get

@@ -4,6 +4,7 @@ using JemExtensions;
 using SymbolicLinkSupport;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -31,6 +32,7 @@ using Windows.System.Diagnostics;
 using BedrockLauncher.UpdateProcessor.Enums;
 using JemExtensions.WPF.Commands;
 using BedrockLauncher.UI.Pages.Common;
+using System.Collections;
 
 namespace BedrockLauncher.Handlers
 {
@@ -46,23 +48,22 @@ namespace BedrockLauncher.Handlers
 
         #region Public Methods
 
-        public async Task LaunchPackage(MCVersion v, string dirPath, bool KeepLauncherOpen)
+        public async Task LaunchPackage(MCVersion v, string dirPath, bool KeepLauncherOpen, bool LaunchEditor)
         {
             try
             {
-                StartTask();
-                MainDataModel.Default.ProgressBarState.SetProgressBarState(LauncherState.isLaunching);
-
-                var pkg = await AppDiagnosticInfo.RequestInfoForPackageAsync(Constants.GetPackageFamily(v.Type));
-                AppActivationResult activationResult = null;
-                if (pkg.Count > 0) activationResult = await pkg[0].LaunchAsync();
-                Trace.WriteLine("App launch finished!");
-                if (KeepLauncherOpen && activationResult != null) await UpdatePackageHandle(activationResult);
-                if (KeepLauncherOpen == false) await Application.Current.Dispatcher.InvokeAsync(() => Application.Current.MainWindow.Close());
-            }
-            catch (PackageManagerException e)
-            {
-                SetException(e);
+                if (await Launcher.LaunchUriAsync(new Uri($"{Constants.GetUri(v.Type)}:?Editor={LaunchEditor}")))
+                {
+                    Trace.WriteLine("App launch finished!");
+                    if (KeepLauncherOpen == false)
+                        await Application.Current.Dispatcher.InvokeAsync(() => Application.Current.MainWindow.Close());
+                    else
+                        await GetGameHandle(Constants.MINECRAFT_PROCESS_NAME);
+                }
+                else
+                {
+                    SetException(new AppLaunchFailedException($"Failed to open {Constants.GetUri(v.Type)} URI", new Exception()));
+                }
             }
             catch (Exception e)
             {
@@ -73,6 +74,8 @@ namespace BedrockLauncher.Handlers
                 EndTask();
             }
         }
+
+
         public async Task InstallPackage(MCVersion v, string dirPath)
         {
             try
@@ -103,8 +106,8 @@ namespace BedrockLauncher.Handlers
         {
             if (GameHandle != null)
             {
-                var title = BedrockLauncher.Localization.Language.LanguageManager.GetResource("Dialog_KillGame_Title") as string;
-                var content = BedrockLauncher.Localization.Language.LanguageManager.GetResource("Dialog_KillGame_Text") as string;
+                string title = BedrockLauncher.Localization.Language.LanguageManager.GetResource("Dialog_KillGame_Title") as string;
+                string content = BedrockLauncher.Localization.Language.LanguageManager.GetResource("Dialog_KillGame_Text") as string;
                 var result = await DialogPrompt.ShowDialog_YesNo(title, content);
 
                 if (result == System.Windows.Forms.DialogResult.Yes) GameHandle.Kill();
@@ -129,7 +132,7 @@ namespace BedrockLauncher.Handlers
             {
                 SetException(e);
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 SetException(new PackageRemovalFailedException(ex));
             }
@@ -202,6 +205,53 @@ namespace BedrockLauncher.Handlers
 
         #region Private Throwable Methods
 
+        private async Task GetGameHandle(string processName)
+        {
+            await Task.Run(() =>
+            {
+                try
+                {
+                    Process[] MinecraftProcesses = Process.GetProcessesByName(processName);
+                    while (MinecraftProcesses.Length == 0)
+                        Process.GetProcessesByName(processName);
+
+                    if (MinecraftProcesses.Length == 1)
+                    {
+                        MainDataModel.Default.ProgressBarState.SetGameRunningStatus(true);
+                        GameHandle = MinecraftProcesses[0];
+                        GameHandle.EnableRaisingEvents = true;
+                        GameHandle.Exited += OnPackageExit;
+
+
+                        void OnPackageExit(object sender, EventArgs e)
+                        {
+                            Process p = sender as Process;
+                            p.Exited -= OnPackageExit;
+                            GameHandle = null;
+                            MainDataModel.Default.ProgressBarState.SetGameRunningStatus(false);
+                        }
+
+                        Trace.WriteLine("Successfully attached Minecraft process");
+                    }
+                    else
+                    {
+                        Trace.WriteLine("Failed to attach Minecraft process: Too many processes found");
+                        GameHandle = null;
+                        MainDataModel.Default.ProgressBarState.SetGameRunningStatus(false);
+                    }
+                }
+                catch (InvalidOperationException e)
+                {
+                    throw e;
+                }
+                catch (Exception e)
+                {
+                    throw new PackageProcessHookFailedException(e);
+                }
+            });
+
+        }
+
         private async Task DownloadAndExtractPackage(MCVersion v)
         {
             try
@@ -216,7 +266,7 @@ namespace BedrockLauncher.Handlers
                 }
                 string dlPath = "Minecraft-" + v.Name + ".Appx";
                 //string dlPath = Path.Combine(subDirectory, "Minecraft-" + v.Name + ".Appx");
-                if (!File.Exists(Path.Combine(subDirectory,dlPath))) await DownloadPackage(v, dlPath, CancelSource);
+                if (!File.Exists(Path.Combine(subDirectory, dlPath))) await DownloadPackage(v, dlPath, CancelSource);
                 else File.Move(Path.Combine(MainDataModel.Default.FilePaths.VersionsFolder, "AppxBackups", dlPath), dlPath); ;
                 await ExtractPackage(v, dlPath, CancelSource);
 
@@ -473,42 +523,6 @@ namespace BedrockLauncher.Handlers
                 throw new BetaAuthenticationFailedException(e);
             }
         }
-        private async Task UpdatePackageHandle(AppActivationResult app)
-        {
-            await Task.Run(() =>
-            {
-                try
-                {
-                    List<ProcessDiagnosticInfo> result = app.AppResourceGroupInfo.GetProcessDiagnosticInfos().ToList();
-                    if (result == null || result.Count == 0) return;
-
-                    MainDataModel.Default.ProgressBarState.SetGameRunningStatus(true);
-
-                    var ProcessId = (int)result.First().ProcessId;
-                    GameHandle = Process.GetProcessById(ProcessId);
-                    GameHandle.EnableRaisingEvents = true;
-                    GameHandle.Exited += OnPackageExit;
-                }
-                catch (PackageManagerException e)
-                {
-                    throw e;
-                }
-                catch (Exception ex)
-                {
-                    throw new PackageProcessHookFailedException(ex);
-                }
-            });
-
-
-            void OnPackageExit(object sender, EventArgs e)
-            {
-                Process p = sender as Process;
-                p.Exited -= OnPackageExit;
-                GameHandle = null;
-                MainDataModel.Default.ProgressBarState.SetGameRunningStatus(false);
-            }
-        }
-
         #endregion
 
         #region Helpers
@@ -590,7 +604,7 @@ namespace BedrockLauncher.Handlers
 
             void SetGenericError(Exception ex)
             {
-                 _ = MainDataModel.BackwardsCommunicationHost.exceptionmsg(ex);
+                _ = MainDataModel.BackwardsCommunicationHost.exceptionmsg(ex);
             }
 
             void SetError(Exception ex2, string debugMessage, string dialogTitle, string dialogText)

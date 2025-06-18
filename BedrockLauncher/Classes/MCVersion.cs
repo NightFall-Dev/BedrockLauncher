@@ -30,6 +30,11 @@ namespace BedrockLauncher.Classes
             this.Architecture = architecture;
         }
 
+        public MCVersion(string name)
+        {
+            this.Name = name;
+        }
+
         public string UUID { get; set; }
         public string PackageID { get; set; }
         public string Name { get; set; }

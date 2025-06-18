@@ -22,6 +22,7 @@ namespace BedrockLauncher.Handlers
         #region Messages
         private const string HELP_ARG = "--help";
         private const string NO_WINDOW_ARG = "--nowindow";
+        private const string EDITOR_ARG = "--editor";
         private const string LAUNCH_INSTALLATION_ARG = "--launch";
         private const string CLOSE_ON_LAUNCH_ARG = "--closeOnLaunch";
         private const string PRESIST_ON_LAUNCH_ARG = "--keepOpenOnLaunch";
@@ -43,6 +44,7 @@ namespace BedrockLauncher.Handlers
 
         private static bool CloseOnLaunch { get; set; } = false;
         private static bool KeepOpenOnLaunch { get; set; } = false;
+        private static bool LaunchEditor { get; set; } = false;
 
         private static void PraseEarlyArgs(string[] args)
         {
@@ -100,6 +102,9 @@ namespace BedrockLauncher.Handlers
                     case PRESIST_ON_LAUNCH_ARG:
                         KeepOpenOnLaunch = true;
                         break;
+                    case EDITOR_ARG:
+                        LaunchEditor = true;
+                        break;
                     case LAUNCH_INSTALLATION_ARG:
                         bool result = LaunchInstallation(args, i);
                         if (!result) KillApp = true;
@@ -144,7 +149,7 @@ namespace BedrockLauncher.Handlers
                     bool c = Properties.LauncherSettings.Default.KeepLauncherOpen;
                     if (KeepOpenOnLaunch) c = true;
                     else if (CloseOnLaunch) c = false;   
-                    ViewModels.MainDataModel.Default.Play(p, i, c, false);
+                    ViewModels.MainDataModel.Default.Play(p, i, c, LaunchEditor, false);
                     return true;
                 }
             }

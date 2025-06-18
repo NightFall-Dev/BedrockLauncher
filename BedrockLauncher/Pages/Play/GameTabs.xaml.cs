@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -9,6 +10,7 @@ using System.Windows.Data;
 using System.Windows.Media.Animation;
 using BedrockLauncher.Classes;
 using BedrockLauncher.Downloaders;
+using BedrockLauncher.Pages.Play.CreatorTools;
 using BedrockLauncher.Pages.Play.Home;
 using BedrockLauncher.Pages.Play.Installations;
 using BedrockLauncher.Pages.Play.PatchNotes;
@@ -22,6 +24,7 @@ namespace BedrockLauncher.Pages.Play
 
         public PlayScreenPage playScreenPage = new PlayScreenPage();
         public InstallationsScreen installationsScreen = new InstallationsScreen();
+        public CreatorToolsPage creatorToolsPage = new CreatorToolsPage();
         public PatchNotesPage patchNotesPage = new PatchNotesPage(PatchNotesDownloader);
 
         private Navigator Navigator { get; set; } = new Navigator();
@@ -42,17 +45,16 @@ namespace BedrockLauncher.Pages.Play
                 // just all buttons list
                 // ya i know this is really bad, i need to learn mvvm instead of doing this shit
                 // but this works fine, at least
-                List<ToggleButton> toggleButtons = new List<ToggleButton>() {
+                ToggleButton[] toggleButtons = new ToggleButton[] {
                 PlayButton,
+                CreatorToolsButton,
                 InstallationsButton,
                 //PatchNotesButton
             };
 
-                foreach (ToggleButton button in toggleButtons) { button.IsChecked = false; }
-
-                if (toggleButtons.Exists(x => x.Name == buttonName))
+                foreach (ToggleButton button in toggleButtons)
                 {
-                    toggleButtons.Where(x => x.Name == buttonName).FirstOrDefault().IsChecked = true;
+                    button.IsChecked = button.Name == buttonName;
                 }
             });
 
@@ -76,6 +78,7 @@ namespace BedrockLauncher.Pages.Play
 
                 if (senderName == PlayButton.Name) NavigateToPlayScreen();
                 else if (senderName == InstallationsButton.Name) NavigateToInstallationsPage();
+                else if (senderName == CreatorToolsButton.Name) NavigateToCreatorToolsPage();
                 //else if (senderName == PatchNotesButton.Name) NavigateToPatchNotes();
             });
         }
@@ -83,21 +86,24 @@ namespace BedrockLauncher.Pages.Play
         public void NavigateToPlayScreen()
         {
             Navigator.UpdatePageIndex(0);
-            PlayButton.IsChecked = true;
             Task.Run(() => Navigator.Navigate(MainPageFrame, playScreenPage));
 
         }
         public void NavigateToInstallationsPage()
         {
             Navigator.UpdatePageIndex(1);
-            InstallationsButton.IsChecked = true;
             Task.Run(() => Navigator.Navigate(MainPageFrame, installationsScreen));
+        }
+
+        public void NavigateToCreatorToolsPage()
+        {
+            Navigator.UpdatePageIndex(2);
+            Task.Run(() => Navigator.Navigate(MainPageFrame, creatorToolsPage));
         }
 
         public void NavigateToPatchNotes()
         {
             Navigator.UpdatePageIndex(3);
-            //PatchNotesButton.IsChecked = true;
             Task.Run(() => Navigator.Navigate(MainPageFrame, patchNotesPage));
         }
 

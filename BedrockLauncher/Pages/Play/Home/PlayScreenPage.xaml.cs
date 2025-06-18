@@ -21,9 +21,6 @@ namespace BedrockLauncher.Pages.Play.Home
 {
     public partial class PlayScreenPage : Page
     {
-
-
-
         public PlayScreenPage()
         {
             InitializeComponent();
@@ -106,7 +103,7 @@ namespace BedrockLauncher.Pages.Play.Home
             {
                 var i = InstallationsList.SelectedItem as BLInstallation;
                 bool KeepLauncherOpen = Properties.LauncherSettings.Default.KeepLauncherOpen;
-                MainDataModel.Default.Play(ViewModels.MainDataModel.Default.Config.CurrentProfile, i, KeepLauncherOpen);
+                MainDataModel.Default.Play(ViewModels.MainDataModel.Default.Config.CurrentProfile, i, KeepLauncherOpen, false);
             }
         }
     }
