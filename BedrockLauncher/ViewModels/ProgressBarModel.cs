@@ -57,7 +57,7 @@ namespace BedrockLauncher.ViewModels
             {
                 Depends.On(IsGameRunning, PlayButtonLanguageChanged);
                 if (IsGameRunning) return Application.Current.FindResource("GameTab_PlayButton_Kill_Text").ToString();
-                else return Application.Current.FindResource("InstallationsPage_PlayEditorButton").ToString();
+                else return Application.Current.FindResource("CreatorToolsPage_PlayEditorButton").ToString();
             }
         }
 
