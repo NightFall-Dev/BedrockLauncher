@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.IO.Compression;
 using System.IO;
 using System.Threading;
+using System.Net;
 
 namespace JemExtensions
 {
@@ -55,12 +56,13 @@ namespace JemExtensions
                 if (cancelSource.IsCancellationRequested) throw new TaskCanceledException(nameof(source));
 
                 count++;
-                string fileDestinationPath = Path.GetFullPath(Path.Combine(destinationDirectoryFullPath, entry.FullName));
+                string decodedFullName = WebUtility.UrlDecode(entry.FullName);
+                string fileDestinationPath = Path.GetFullPath(Path.Combine(destinationDirectoryFullPath, decodedFullName));
 
                 if (!fileDestinationPath.StartsWith(destinationDirectoryFullPath, StringComparison.OrdinalIgnoreCase))
                     throw new IOException("File is extracting to outside of the folder specified.");
 
-                var zipProgress = new ZipProgress(source.Entries.Count, count, entry.FullName);
+                var zipProgress = new ZipProgress(source.Entries.Count, count, decodedFullName);
                 progress.Report(zipProgress);
 
                 if (Path.GetFileName(fileDestinationPath).Length == 0)
