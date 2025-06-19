@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using BedrockLauncher.Enums;
 using BedrockLauncher.Handlers;
 using BedrockLauncher.Pages.Preview;
 using BedrockLauncher.Pages.Preview.Installation;
@@ -43,6 +44,21 @@ namespace BedrockLauncher.Pages.Play.Installations
         }
         private void PageHost_Loaded(object sender, RoutedEventArgs e)
         {
+            switch (Properties.LauncherSettings.Default.InstallationsSortMode)
+            {
+                case InstallationSort.LatestPlayed:
+                    SortByComboBox.SelectedItem = SortByLatestPlayed;
+                    break;
+                case InstallationSort.Name:
+                    SortByComboBox.SelectedItem = SortByName;
+                    break;
+                case InstallationSort.None:
+                    SortByComboBox.SelectedItem = SortByNone;
+                    break;
+                default:
+                    SortByComboBox.SelectedItem = SortByLatestPlayed;
+                    break;
+            }
             this.RefreshInstallations();
         }
 
