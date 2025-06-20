@@ -34,7 +34,7 @@ namespace BedrockLauncher.Pages.Play.CreatorTools
             BLInstallation selectedInstallation = InstallationsList.SelectedItem as BLInstallation;
             if (MainDataModel.Default.PackageManager.isGameRunning)
                 EditorPlayButton.IsEnabled = true;
-            else if (selectedInstallation.Version is null)
+            else if (selectedInstallation?.Version is null)
                 EditorPlayButton.IsEnabled = MainDataModel.Default.ProgressBarState.AllowPlaying;
             else
                 EditorPlayButton.IsEnabled = MainDataModel.Default.ProgressBarState.AllowPlaying && selectedInstallation.Version?.Compare(Constants.GetMinimumEditorVersion(selectedInstallation.VersionType)) <= 0;
