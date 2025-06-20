@@ -55,7 +55,7 @@
                 <Grid Grid.Column="4" Margin="10,0,10,10" VerticalAlignment="Center">
                     <StackPanel>
                         <TextBlock Foreground="White" Text="{DynamicResource GeneralSubtitles_SortBy}" Margin="2,0,0,4" FontWeight="Bold" FontFamily="/BedrockLauncher;component/Resources/fonts/#Noto Sans" VerticalAlignment="Top" Background="{x:Null}"/>
-                        <ComboBox x:Name="SortByComboBox" Style="{DynamicResource BlankComboBoxStyle}" SelectedIndex="0" Padding="4,0,0,0" VerticalContentAlignment="Center" SelectionChanged="ComboBox_SelectionChanged" Height="30">
+                        <ComboBox x:Name="SortByComboBox" Style="{DynamicResource BlankComboBoxStyle}" Padding="4,0,0,0" VerticalContentAlignment="Center" SelectionChanged="ComboBox_SelectionChanged" Height="30">
                             <ComboBoxItem Content="{DynamicResource InstallationsPage_SortBy_LatestPlayed}" x:Name="SortByLatestPlayed"></ComboBoxItem>
                             <ComboBoxItem Content="{DynamicResource InstallationsPage_SortBy_Name}" x:Name="SortByName"></ComboBoxItem>
                             <ComboBoxItem Content="{DynamicResource InstallationsPage_SortBy_None}" x:Name="SortByNone"></ComboBoxItem>
