@@ -46,13 +46,13 @@ namespace BedrockLauncher.Pages.Play.Installations
         {
             switch (Properties.LauncherSettings.Default.InstallationsSortMode)
             {
-                case InstallationSort.LatestPlayed:
+                case Enums.InstallationSort.LatestPlayed:
                     SortByComboBox.SelectedItem = SortByLatestPlayed;
                     break;
-                case InstallationSort.Name:
+                case Enums.InstallationSort.Name:
                     SortByComboBox.SelectedItem = SortByName;
                     break;
-                case InstallationSort.None:
+                case Enums.InstallationSort.None:
                     SortByComboBox.SelectedItem = SortByNone;
                     break;
                 default:
