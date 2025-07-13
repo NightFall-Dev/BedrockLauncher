@@ -35,6 +35,9 @@
 		<AnalysisLevel>latest</AnalysisLevel>
 		<SelfContained>false</SelfContained>
 	</PropertyGroup>
+  <PropertyGroup>
+    <RollForward>LatestMajor</RollForward>
+  </PropertyGroup>
 	<PropertyGroup>
 		<StartupObject>BedrockLauncher.Program</StartupObject>
 	</PropertyGroup>
