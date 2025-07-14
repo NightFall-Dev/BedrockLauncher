@@ -59,7 +59,7 @@ namespace BedrockLauncher.ViewModels
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
-                Config = BLProfileList.Load(FilePaths.GetProfilesFilePath(), Properties.LauncherSettings.Default.CurrentProfileUUID, Properties.LauncherSettings.Default.CurrentProfileUUID);
+                Config = BLProfileList.Load(FilePaths.GetProfilesFilePath(), Properties.LauncherSettings.Default.CurrentProfileUUID, Properties.LauncherSettings.Default.CurrentInstallationUUID);
             });
         }
         public async void KillGame() => await PackageManager.ClosePackage();
