@@ -245,7 +245,11 @@ namespace BedrockLauncher.Classes
         #endregion
 
         #region Management Methods
-
+        string ValidatePathName(string pathName)
+        {
+            char[] invalidFileNameChars = Path.GetInvalidFileNameChars();
+            return new string(pathName.Where(ch => !invalidFileNameChars.Contains(ch)).ToArray());
+        }
         public bool Profile_Add(string name, string uuid, string directory, string img)
         {
             var real_directory = ValidatePathName(directory);
@@ -264,11 +268,6 @@ namespace BedrockLauncher.Classes
                 return true;
             }
 
-            string ValidatePathName(string pathName)
-            {
-                char[] invalidFileNameChars = Path.GetInvalidFileNameChars();
-                return new string(pathName.Where(ch => !invalidFileNameChars.Contains(ch)).ToArray());
-            }
         }
         public bool Profile_Edit(string name, string uuid, string directory, string img)
         {
@@ -287,11 +286,6 @@ namespace BedrockLauncher.Classes
                 return true;
             }
 
-            string ValidatePathName(string pathName)
-            {
-                char[] invalidFileNameChars = Path.GetInvalidFileNameChars();
-                return new string(pathName.Where(ch => !invalidFileNameChars.Contains(ch)).ToArray());
-            }
         }
         public void Profile_Remove(string profileUUID)
         {
@@ -367,7 +361,7 @@ namespace BedrockLauncher.Classes
                     i++;
                 }
                 var Clone = installation.Clone(newName);
-                Clone.DirectoryName = newName;
+                Clone.DirectoryName = ValidatePathName(newName);
                 Clone.ReadOnly = false;
                 Installation_Add(Clone);
             }
@@ -383,7 +377,7 @@ namespace BedrockLauncher.Classes
                 DisplayName = name,
                 IconPath = (iconPath == null ? Constants.INSTALLATIONS_FALLBACK_ICONPATH : iconPath),
                 IsCustomIcon = isCustom,
-                DirectoryName = name,
+                DirectoryName = ValidatePathName(name),
                 VersioningMode = versioningMode,
                 VersionUUID = version_uuid
             };
@@ -406,7 +400,7 @@ namespace BedrockLauncher.Classes
                 DisplayName = name,
                 IconPath = (iconPath == null ? Constants.INSTALLATIONS_FALLBACK_ICONPATH : iconPath),
                 IsCustomIcon = isCustom,
-                DirectoryName = name,
+                DirectoryName = ValidatePathName(name),
                 VersioningMode = versioningMode,
                 VersionUUID = version_uuid
             };

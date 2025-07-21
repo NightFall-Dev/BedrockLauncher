@@ -51,6 +51,7 @@ namespace BedrockLauncher.Pages.Preview.Profile
 
         private void CreateProfileButton_Click(object sender, RoutedEventArgs e)
         {
+            EvaluateDirectory();
             ConfirmProfile();
         }
         public void ConfirmProfile()

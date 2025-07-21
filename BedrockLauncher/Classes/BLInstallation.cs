@@ -50,7 +50,7 @@ namespace BedrockLauncher.Classes
                 Depends.On(VersionUUID, DisplayName);
                 if (VersionUUID == Constants.LATEST_RELEASE_UUID && ReadOnly) return BedrockLauncher.Localization.Language.LanguageManager.GetResource("VersionEntries_LatestRelease").ToString();
                 else if (VersionUUID == Constants.LATEST_PREVIEW_UUID && ReadOnly) return BedrockLauncher.Localization.Language.LanguageManager.GetResource("VersionEntries_LatestPreview").ToString();
-                else if (VersionUUID == Constants.LATEST_BETA_UUID && ReadOnly) return BedrockLauncher.Localization.Language.LanguageManager.GetResource("VersionEntries_LatestBeta").ToString();
+                //else if (VersionUUID == Constants.LATEST_BETA_UUID && ReadOnly) return BedrockLauncher.Localization.Language.LanguageManager.GetResource("VersionEntries_LatestBeta").ToString();
                 else if (string.IsNullOrWhiteSpace(DisplayName)) return BedrockLauncher.Localization.Language.LanguageManager.GetResource("VersionEntries_UnnamedInstallation").ToString();
                 else return DisplayName;
             }
@@ -116,10 +116,10 @@ namespace BedrockLauncher.Classes
             {
                 Depends.On(VersionUUID, VersioningMode);
                 string version = Version?.Name ?? "???";
-                if (VersioningMode == VersioningMode.LatestPreview) return BedrockLauncher.Localization.Language.LanguageManager.GetResource("VersionEntries_LatestPreview").ToString();
-                else if (VersioningMode == VersioningMode.LatestBeta) return BedrockLauncher.Localization.Language.LanguageManager.GetResource("VersionEntries_LatestBeta").ToString();
-                else if (VersioningMode == VersioningMode.LatestRelease) return BedrockLauncher.Localization.Language.LanguageManager.GetResource("VersionEntries_LatestRelease").ToString();
-                else return version;
+                //if (VersioningMode == VersioningMode.LatestPreview) return BedrockLauncher.Localization.Language.LanguageManager.GetResource("VersionEntries_LatestPreview").ToString();
+                //else if (VersioningMode == VersioningMode.LatestBeta) return BedrockLauncher.Localization.Language.LanguageManager.GetResource("VersionEntries_LatestBeta").ToString();
+                //else if (VersioningMode == VersioningMode.LatestRelease) return BedrockLauncher.Localization.Language.LanguageManager.GetResource("VersionEntries_LatestRelease").ToString();
+                return version;
             }
         }
         [JsonIgnore]

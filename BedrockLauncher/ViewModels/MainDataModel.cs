@@ -59,7 +59,7 @@ namespace BedrockLauncher.ViewModels
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
-                Config = BLProfileList.Load(FilePaths.GetProfilesFilePath(), Properties.LauncherSettings.Default.CurrentProfileUUID, Properties.LauncherSettings.Default.CurrentProfileUUID);
+                Config = BLProfileList.Load(FilePaths.GetProfilesFilePath(), Properties.LauncherSettings.Default.CurrentProfileUUID, Properties.LauncherSettings.Default.CurrentInstallationUUID);
             });
         }
         public async void KillGame() => await PackageManager.ClosePackage();
@@ -82,7 +82,7 @@ namespace BedrockLauncher.ViewModels
             var Path = MainDataModel.Default.FilePaths.GetInstallationPackageDataPath(p.UUID, i.DirectoryName_Full);
 
             await PackageManager.InstallPackage(Version, Path);
-            await PackageManager.LaunchPackage(Version, Path, KeepLauncherOpen, LaunchEditor);
+            if (Version.IsInstalled) await PackageManager.LaunchPackage(Version, Path, KeepLauncherOpen, LaunchEditor);
         }
 
         public async void Install(BLProfile p, BLInstallation i)
