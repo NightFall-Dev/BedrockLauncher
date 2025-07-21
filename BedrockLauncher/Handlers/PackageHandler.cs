@@ -52,26 +52,37 @@ namespace BedrockLauncher.Handlers
         {
             try
             {
+                StartTask();
+                MainDataModel.Default.ProgressBarState.SetProgressBarState(LauncherState.isLaunching);
                 if (await Launcher.LaunchUriAsync(new Uri($"{Constants.GetUri(v.Type)}:?Editor={LaunchEditor}")))
                 {
                     Trace.WriteLine("App launch finished!");
-                    if (KeepLauncherOpen == false)
+                    if (!KeepLauncherOpen)
                         await Application.Current.Dispatcher.InvokeAsync(() => Application.Current.MainWindow.Close());
                     else
                         await GetGameHandle(Constants.MINECRAFT_PROCESS_NAME);
                 }
+                else if (!LaunchEditor)
+                {
+                    Trace.WriteLine($"Failed to open {Constants.GetUri(v.Type)} URI. Attempting package launch.");
+
+                    AppActivationResult activationResult = null;
+                    var pkg = await AppDiagnosticInfo.RequestInfoForPackageAsync(Constants.GetPackageFamily(v.Type));
+                    if (pkg.Count > 0)
+                        activationResult = await pkg[0].LaunchAsync();
+                    if (KeepLauncherOpen && activationResult != null)
+                        await GetGameHandle(Constants.MINECRAFT_PROCESS_NAME);
+                    Trace.WriteLine("App launch finished!");
+                }
                 else
                 {
-                    SetException(new AppLaunchFailedException($"Failed to open {Constants.GetUri(v.Type)} URI", new Exception()));
+                    SetException(new AppLaunchFailedException($"Impossible to launch Editor: Failed to open {Constants.GetUri(v.Type)} URI", new Exception()));
                 }
             }
             catch (Exception e)
             {
-                SetException(new AppLaunchFailedException(e));
-            }
-            finally
-            {
                 EndTask();
+                SetException(new AppLaunchFailedException(e));
             }
         }
 
@@ -247,6 +258,10 @@ namespace BedrockLauncher.Handlers
                 catch (Exception e)
                 {
                     throw new PackageProcessHookFailedException(e);
+                }
+                finally
+                {
+                    EndTask();
                 }
             });
 
