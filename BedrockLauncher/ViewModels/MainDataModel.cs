@@ -82,7 +82,7 @@ namespace BedrockLauncher.ViewModels
             var Path = MainDataModel.Default.FilePaths.GetInstallationPackageDataPath(p.UUID, i.DirectoryName_Full);
 
             await PackageManager.InstallPackage(Version, Path);
-            await PackageManager.LaunchPackage(Version, Path, KeepLauncherOpen, LaunchEditor);
+            if (Version.IsInstalled) await PackageManager.LaunchPackage(Version, Path, KeepLauncherOpen, LaunchEditor);
         }
 
         public async void Install(BLProfile p, BLInstallation i)
