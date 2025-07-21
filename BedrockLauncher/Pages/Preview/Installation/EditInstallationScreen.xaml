@@ -60,8 +60,7 @@
                         </ContentControl>
 
 
-                        <TextBlock Margin="0,28,0,5" Text="{DynamicResource EditInstallationScreen_DirectorySubtitle}" VerticalAlignment="Center" HorizontalAlignment="Left" Style="{DynamicResource HeaderTextblock}"/>
-                        <TextBox Height="32" Tag="{DynamicResource EditInstallationScreen_DirectoryHintText}" Width="330" x:Name="InstallationDirectoryField" TextChanged="InstallationDirectoryField_TextChanged" AcceptsReturn="False" SpellCheck.IsEnabled="False"  VerticalContentAlignment="Center" HorizontalContentAlignment="Left" Text="{Binding InstallationDirectory, Mode=TwoWay}" TextInput="InstallationDirectoryField_TextInput"></TextBox>
+
                     </StackPanel>
                 </StackPanel>
 

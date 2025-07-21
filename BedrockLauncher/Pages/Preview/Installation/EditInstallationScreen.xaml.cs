@@ -47,7 +47,6 @@ namespace BedrockLauncher.Pages.Preview.Installation
 
             ViewModel.SelectedVersionUUID = i.VersionUUID;
             ViewModel.InstallationName = i.DisplayName;
-            ViewModel.InstallationDirectory = i.DirectoryName;
             ViewModel.SelectedUUID = i.InstallationUUID;
 
             InstallationIconSelect.Init(i);
@@ -74,34 +73,17 @@ namespace BedrockLauncher.Pages.Preview.Installation
 
         private void UpdateInstallation()
         {
-            MainDataModel.Default.Config.Installation_Edit(ViewModel.SelectedUUID, ViewModel.InstallationName, GetVersion(ViewModel.SelectedVersionUUID), ViewModel.InstallationDirectory, InstallationIconSelect.IconPath, InstallationIconSelect.IsIconCustom);
+            MainDataModel.Default.Config.Installation_Edit(ViewModel.SelectedUUID, ViewModel.InstallationName, GetVersion(ViewModel.SelectedVersionUUID), ViewModel.InstallationName, InstallationIconSelect.IconPath, InstallationIconSelect.IsIconCustom);
             MainViewModel.Default.SetOverlayFrame(null);
         }
 
         private void CreateInstallation()
         {
-            MainDataModel.Default.Config.Installation_Create(ViewModel.InstallationName, GetVersion(ViewModel.SelectedVersionUUID), ViewModel.InstallationDirectory, InstallationIconSelect.IconPath, InstallationIconSelect.IsIconCustom);
+            MainDataModel.Default.Config.Installation_Create(ViewModel.InstallationName, GetVersion(ViewModel.SelectedVersionUUID), ViewModel.InstallationName, InstallationIconSelect.IconPath, InstallationIconSelect.IsIconCustom);
             MainViewModel.Default.SetOverlayFrame(null);
         }
 
-        private void InstallationDirectoryField_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            string currentName = InstallationDirectoryField.Text;
-            string fixedName = ValidatePathName(currentName);
-            if (fixedName != currentName) InstallationDirectoryField.Text = fixedName;
 
-
-            string ValidatePathName(string pathName)
-            {
-                char[] invalidFileNameChars = System.IO.Path.GetInvalidFileNameChars();
-                return new string(pathName.Where(ch => !invalidFileNameChars.Contains(ch)).ToArray());
-            }
-        }
-
-        private void InstallationDirectoryField_TextInput(object sender, TextCompositionEventArgs e)
-        {
-            
-        }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
