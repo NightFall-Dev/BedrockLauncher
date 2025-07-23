@@ -279,11 +279,13 @@ namespace BedrockLauncher.Handlers
                 {
                     Directory.CreateDirectory(subDirectory);
                 }
+
                 string dlPath = "Minecraft-" + v.Name + ".Appx";
-                //string dlPath = Path.Combine(subDirectory, "Minecraft-" + v.Name + ".Appx");
-                if (!File.Exists(Path.Combine(subDirectory, dlPath))) await DownloadPackage(v, dlPath, CancelSource);
-                else File.Move(Path.Combine(MainDataModel.Default.FilePaths.VersionsFolder, "AppxBackups", dlPath), dlPath); ;
-                await ExtractPackage(v, dlPath, CancelSource);
+                string bkpsPath = Path.Combine(subDirectory, dlPath);
+                string pkgPath = File.Exists(bkpsPath) ? bkpsPath : dlPath;
+
+                if (!File.Exists(bkpsPath)) await DownloadPackage(v, dlPath, CancelSource);
+                await ExtractPackage(v, dlPath, bkpsPath, pkgPath, CancelSource);
 
                 v.UpdateFolderSize();
             }
@@ -361,7 +363,7 @@ namespace BedrockLauncher.Handlers
             }
 
         }
-        private async Task ExtractPackage(MCVersion v, string dlPath, CancellationTokenSource cancelSource)
+        private async Task ExtractPackage(MCVersion v, string dlPath, string bkpsPath, string pkgPath, CancellationTokenSource cancelSource)
         {
             try
             {
@@ -371,7 +373,7 @@ namespace BedrockLauncher.Handlers
                 if (Directory.Exists(v.GameDirectory))
                     await DirectoryExtensions.DeleteAsync(v.GameDirectory, (x, y, phase) => ProgressWrapper(x, y, phase));
 
-                var fileStream = File.OpenRead(dlPath);
+                var fileStream = File.OpenRead(pkgPath);
                 var progress = new Progress<ZipProgress>();
                 progress.ProgressChanged += (s, z) => MainDataModel.Default.ProgressBarState.SetProgressBarProgress(currentProgress: z.Processed, totalProgress: z.Total);
                 await Task.Run(() => new ZipArchive(fileStream).ExtractToDirectory(v.GameDirectory, progress, cancelSource));
@@ -380,13 +382,12 @@ namespace BedrockLauncher.Handlers
                 await File.WriteAllTextAsync(v.IdentificationPath, v.PackageID);
                 File.Delete(Path.Combine(v.GameDirectory, "AppxSignature.p7x"));
 
-                if (Properties.LauncherSettings.Default.KeepAppx)
+                if (!File.Exists(bkpsPath))
                 {
-                    File.Move(dlPath, Path.Combine(MainDataModel.Default.FilePaths.VersionsFolder, "AppxBackups", dlPath));
-                }
-                else
-                {
-                    File.Delete(dlPath);
+                    if (Properties.LauncherSettings.Default.KeepAppx)
+                        File.Move(dlPath, bkpsPath);
+                    else
+                        File.Delete(dlPath);
                 }
 
                 Trace.WriteLine("Extracted successfully");
