@@ -140,10 +140,17 @@
 	<ItemGroup>
 		<Resource Include="Resources\images\bg\play_screen\1.17_caves_and_cliffs_part_2.jpg" />
 		<Resource Include="Resources\images\bg\play_screen\1.19_the_wild_update.jpg" />
+		<Resource Include="Resources\images\bg\play_screen\1.20_trails_and_tales.png" />
+		<Resource Include="Resources\images\bg\play_screen\1.21.50_the_garden_awakens.png" />
+		<Resource Include="Resources\images\bg\play_screen\1.21.70_spring_to_life.jpg" />
+		<Resource Include="Resources\images\bg\play_screen\1.21.90_chase_the_skies.jpg" />
+		<Resource Include="Resources\images\bg\play_screen\1.21_tricky_trials.png" />
 		<Resource Include="Resources\images\bg\play_screen\bedrock_and_java_together.jpg">
 		  <CopyToOutputDirectory></CopyToOutputDirectory>
 		</Resource>
 		<Resource Include="Resources\images\bg\play_screen\bedrock_and_java_together_technoblade.jpg" />
+		<Resource Include="Resources\images\bg\play_screen\java_and_bedrock_edition_deluxe.jpg" />
+		<Resource Include="Resources\images\bg\play_screen\java_and_bedrock_edition_standard.jpg" />
 		<Resource Include="Resources\images\elements\optionmark.png" />
 		<Resource Include="Resources\images\installation_icons\Acacia_Leaves.png" />
 		<Resource Include="Resources\images\installation_icons\Ancient_Debris.png" />
