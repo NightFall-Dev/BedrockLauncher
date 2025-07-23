@@ -31,11 +31,11 @@ namespace BedrockLauncher
         public static readonly string UPDATES_RELEASE_PAGE = "https://github.com/BedrockLauncher/BedrockLauncher/releases/latest";
         public static readonly string UPDATES_BETA_PAGE = "https://github.com/BedrockLauncher/BedrockLauncher-Beta/releases";
 
-        public static readonly string CUSTOM_VERSION_ICONPATH   = INSTALLATIONS_PREFABED_ICONS_ROOT + @"Custom_Package.png";
-        public static readonly string BETA_VERSION_ICONPATH     = INSTALLATIONS_PREFABED_ICONS_ROOT + @"Crafting_Table.png";
-        public static readonly string RELEASE_VERSION_ICONPATH  = INSTALLATIONS_PREFABED_ICONS_ROOT + @"Grass_Block.png";
-        public static readonly string PREVIEW_VERSION_ICONPATH  = INSTALLATIONS_PREFABED_ICONS_ROOT + @"Grass_Path.png";
-        public static readonly string UNKNOWN_VERSION_ICONPATH  = INSTALLATIONS_PREFABED_ICONS_ROOT + @"Bedrock.png";
+        public static readonly string CUSTOM_VERSION_ICONPATH = INSTALLATIONS_PREFABED_ICONS_ROOT + @"Custom_Package.png";
+        public static readonly string BETA_VERSION_ICONPATH = INSTALLATIONS_PREFABED_ICONS_ROOT + @"Crafting_Table.png";
+        public static readonly string RELEASE_VERSION_ICONPATH = INSTALLATIONS_PREFABED_ICONS_ROOT + @"Grass_Block.png";
+        public static readonly string PREVIEW_VERSION_ICONPATH = INSTALLATIONS_PREFABED_ICONS_ROOT + @"Grass_Path.png";
+        public static readonly string UNKNOWN_VERSION_ICONPATH = INSTALLATIONS_PREFABED_ICONS_ROOT + @"Bedrock.png";
 
         public static readonly string INSTALLATIONS_ICONPATH = APP_RESOURCEPATH_SHORTPREFIX + @"Resources/images/installation_icons/";
         public static readonly string INSTALLATIONS_FALLBACK_ICONPATH = @"Furnace.png";
@@ -84,7 +84,11 @@ namespace BedrockLauncher
 
         public static Dictionary<string, string> Themes = new Dictionary<string, string>()
         {
-
+            { "ChaseTheSkies",                     ThemesPathPrefix + "1.21.90_chase_the_skies.jpg" },
+            { "SpringToLife",                      ThemesPathPrefix + "1.21.70_spring_to_life.jpg" },
+            { "TheGardenAwakens",                  ThemesPathPrefix + "1.21.50_the_garden_awakens.png" },
+            { "TrickyTrials",                      ThemesPathPrefix + "1.21_tricky_trials.png" },
+            { "TrailsAndTales",                    ThemesPathPrefix + "1.20_trails_and_tales.png" },
             { "TheWildUpdate",                     ThemesPathPrefix + "1.19_the_wild_update.jpg" },
             { "CavesAndCliffsPart2Update",         ThemesPathPrefix + "1.17_caves_and_cliffs_part_2.jpg" },
             { "CavesAndCliffsPart1Update",         ThemesPathPrefix + "1.17_caves_and_cliffs_part_1.jpg" },
@@ -98,6 +102,8 @@ namespace BedrockLauncher
             { "CombatUpdate",                      ThemesPathPrefix + "1.09_combat_update_java.jpg" },
             { "CatsAndPandasUpdate",               ThemesPathPrefix + "1.08_cats_and_pandas.jpg" },
             { "PocketEditionRelease",              ThemesPathPrefix + "1.0_pocket_edition.jpg" },
+            { "JavaAndBedrockEditionStandard",     ThemesPathPrefix + "java_and_bedrock_edition_standard.jpg" },
+            { "JavaAndBedrockEditionDeluxe",       ThemesPathPrefix + "java_and_bedrock_edition_deluxe.jpg" },
             { "BedrockAndJavaTogetherTechnoblade", ThemesPathPrefix + "bedrock_and_java_together_technoblade.jpg" },
             { "BedrockAndJavaTogether",            ThemesPathPrefix + "bedrock_and_java_together.jpg" },
             { "BedrockStandard",                   ThemesPathPrefix + "bedrock_standard.jpg" },
