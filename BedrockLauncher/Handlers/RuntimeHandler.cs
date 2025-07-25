@@ -1,4 +1,5 @@
-﻿using BedrockLauncher.Downloaders;
+﻿using BedrockLauncher.Developer;
+using BedrockLauncher.Downloaders;
 using Microsoft.Win32;
 using NLog;
 using System;
@@ -29,7 +30,7 @@ namespace BedrockLauncher.Handlers
 
         public static void LogStartupInformation()
         {
-            Trace.WriteLine("Version: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
+            Trace.WriteLine("Version: " + System.Reflection.Assembly.GetEntryAssembly().GetName().Version);
             Trace.WriteLine("Git Repo: " + ThisAssembly.Git.RepositoryUrl);
             Trace.WriteLine("Git Branch: " + ThisAssembly.Git.Branch);
             Trace.WriteLine("Git Commit: " + ThisAssembly.Git.Commit);
@@ -110,9 +111,12 @@ namespace BedrockLauncher.Handlers
         {
             Trace.WriteLine(e.Exception.ToString());
         }
+
+        public static NLogTraceListener InternalTraceListener { get; set; } = new NLogTraceListener();
+
         public static void StartLogging()
         {
-            Trace.Listeners.Add(new NLogTraceListener());
+            Trace.Listeners.Add(InternalTraceListener);
             Trace.AutoFlush = true;
         }
     }

@@ -12,14 +12,15 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using BedrockLauncher.Extensions;
 using CodeHollow.FeedReader;
 using BedrockLauncher.Classes;
 using System.Diagnostics;
 using System.Windows.Controls.Primitives;
 using BedrockLauncher.Handlers;
-using BedrockLauncher.Components;
 using BedrockLauncher.UI.Components;
+using BedrockLauncher.Pages.News.RSS;
+using BedrockLauncher.Pages.News.Offical;
+using BedrockLauncher.Pages.News.Launcher;
 
 namespace BedrockLauncher.Pages.News
 {
@@ -39,7 +40,7 @@ namespace BedrockLauncher.Pages.News
         public NewsScreenTabs()
         {
             InitializeComponent();
-            LastTabName = OfficalTab.Name;
+            LastTabName = JavaTab.Name;
             launcherNewsPage = new LauncherNewsPage();
         }
 
@@ -60,7 +61,6 @@ namespace BedrockLauncher.Pages.News
                 // ya i know this is really bad, i need to learn mvvm instead of doing this shit
                 // but this works fine, at least
                 List<ToggleButton> toggleButtons = new List<ToggleButton>() {
-                OfficalTab,
                 JavaTab,
                 ForumsTab,
                 LauncherTab
@@ -92,20 +92,10 @@ namespace BedrockLauncher.Pages.News
             {
                 ResetButtonManager(senderName);
 
-                if (senderName == OfficalTab.Name) NavigateToCommunityNews();
-                else if (senderName == JavaTab.Name) NavigateToJavaNews();
+                if (senderName == JavaTab.Name) NavigateToJavaNews();
                 else if (senderName == ForumsTab.Name) NavigateToForumNews();
                 else if (senderName == LauncherTab.Name) NavigateToLauncherNews();
             });
-        }
-
-
-
-        public void NavigateToCommunityNews()
-        {
-            Navigator.UpdatePageIndex(0);
-            Task.Run(() => Navigator.Navigate(ContentFrame, communityNewsPage));
-            LastTabName = OfficalTab.Name;
         }
 
         public void NavigateToJavaNews()
@@ -130,5 +120,13 @@ namespace BedrockLauncher.Pages.News
 
 
         #endregion
+
+        private void RefreshButton_Click(object sender, RoutedEventArgs e)
+        {
+
+            if (LastTabName.Equals(LauncherTab.Name)) _ = launcherNewsPage.RefreshNews();
+            else if (LastTabName.Equals(ForumsTab.Name)) forumsNewsPage.RefreshNews();
+            else if (LastTabName.Equals(JavaTab.Name)) javaNewsPage.RefreshNews();
+        }
     }
 }

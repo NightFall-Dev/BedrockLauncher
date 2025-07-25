@@ -16,9 +16,6 @@ namespace BedrockLauncher.Downloaders
 {
     public static class NewsDownloader
     {
-
-        private const string OfficalFeed_RSS = @"https://launchercontent.mojang.com/news.json";
-
         public static async Task UpdateOfficalFeed(NewsViewModel viewModel)
         {
             await Application.Current.Dispatcher.InvokeAsync(() =>
@@ -26,25 +23,25 @@ namespace BedrockLauncher.Downloaders
                 viewModel.FeedItemsOffical.Clear();
             });
 
-            NewsFeed_Offical result = null;
+            News_OfficalFeed result = null;
             using (var httpClient = new HttpClient())
             {
                 try
                 {
-                    var json = await httpClient.GetStringAsync(OfficalFeed_RSS);
-                    result = Newtonsoft.Json.JsonConvert.DeserializeObject<NewsFeed_Offical>(json);
+                    var json = await httpClient.GetStringAsync(Constants.RSS_LAUNCHER_URL);
+                    result = Newtonsoft.Json.JsonConvert.DeserializeObject<News_OfficalFeed>(json);
                 }
                 catch
                 {
-                    result = new NewsFeed_Offical();
+                    result = new News_OfficalFeed();
                 }
 
             }
-            if (result == null) result = new NewsFeed_Offical();
-            if (result.entries == null) result.entries = new List<NewsItem_Offical>();
+            if (result == null) result = new News_OfficalFeed();
+            if (result.entries == null) result.entries = new List<News_OfficalItem>();
 
             await Application.Current.Dispatcher.InvokeAsync(() => {
-                foreach (NewsItem_Offical item in result.entries)
+                foreach (News_OfficalItem item in result.entries)
                 {
                     if (item.newsType != null && item.newsType.Contains("News page")) viewModel.FeedItemsOffical.Add(item);
                 }
@@ -56,48 +53,17 @@ namespace BedrockLauncher.Downloaders
             {
                 viewModel.LauncherNewsItems.Clear();
                 bool isFirstItem = true;
-                string latest_name = Application.Current.FindResource("LauncherNewsPage_Title_Text").ToString();
-                foreach (var item in MainViewModel.Updater.Notes)
+                string latest_name = BedrockLauncher.Localization.Language.LanguageManager.GetResource("LauncherNewsPage_Title_Text").ToString();
+                foreach (var item in MainDataModel.Updater.Notes)
                 {
-                    bool isBeta = item.url.Contains(BedrockLauncher.Core.GithubAPI.BETA_URL);
-                    if (isFirstItem)
-                    {
-                        GenerateEntry(latest_name, item, isBeta, true);
-                        isFirstItem = false;
-                    }
-                    else GenerateEntry(item.name, item, isBeta);
+                    PatchNote_Launcher newItem = new PatchNote_Launcher(item);
+
+                    if (isFirstItem) newItem.isLatest = true; isFirstItem = false;
+                    newItem.isBeta = item.url.Contains(BedrockLauncher.Core.GithubAPI.BETA_URL);
+
+                    viewModel.LauncherNewsItems.Add(newItem);
                 }
 
-                void GenerateEntry(string name, BedrockLauncher.Core.UpdateNote item, bool isBeta, bool isLatest = false)
-                {
-                    string body = item.body;
-                    string tag = item.tag_name;
-
-                    AppPatchNote launcherUpdateItem = new AppPatchNote();
-
-                    body = body.Replace("\r\n", "\r\n\r\n");
-
-                    Markdown engine = new Markdown();
-                    engine.DocumentStyle = Application.Current.FindResource("FlowDocument_Style") as Style;
-                    engine.NormalParagraphStyle = Application.Current.FindResource("FlowDocument_Style_Paragrath") as Style;
-                    engine.CodeStyle = Application.Current.FindResource("FlowDocument_CodeBlock") as Style;
-                    engine.CodeBlockStyle = Application.Current.FindResource("FlowDocument_CodeBlock") as Style;
-                    FlowDocument document = engine.Transform(body);
-                    string documentString = new TextRange(document.ContentStart, document.ContentEnd).Text;
-
-                    if (isLatest) launcherUpdateItem.buildTitle_Foreground = Brushes.Goldenrod;
-                    else if (isBeta) launcherUpdateItem.buildTitle_Foreground = Brushes.Gold;
-                    else launcherUpdateItem.buildTitle_Foreground = Brushes.White;
-
-                    if (tag == System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString()) launcherUpdateItem.CurrentBox_Visibility = Visibility.Visible;
-
-                    launcherUpdateItem.buildTitle = name;
-                    launcherUpdateItem.buildVersion = string.Format("v{0}{1}", tag, (isBeta ? " (Beta)" : ""));
-                    launcherUpdateItem.buildChanges = documentString;
-                    launcherUpdateItem.buildDate = item.published_at.ToString();
-
-                    viewModel.LauncherNewsItems.Add(launcherUpdateItem);
-                }
             });
         }
         public static async Task UpdateRSSFeed(RSSViewModel viewModel)
@@ -112,7 +78,7 @@ namespace BedrockLauncher.Downloaders
                     Feed feed = FeedReader.ReadFromString(rss);
                     foreach (FeedItem item in feed.Items)
                     {
-                        var new_item = new NewsItem_RSS(item, viewModel.RSSType);
+                        var new_item = new News_RssItem(item, viewModel.RSSType);
                         viewModel.FeedItems.Add(new_item);
                     }
                 }

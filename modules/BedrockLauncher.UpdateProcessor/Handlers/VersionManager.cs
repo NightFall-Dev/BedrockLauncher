@@ -22,8 +22,8 @@ namespace BedrockLauncher.UpdateProcessor.Handlers
 
         private int UserTokenIndex = 0;
 
-        private const string communityDBUrl = "https://mrarm.io/r/w10-vdb";
-        private const string communityDBTechnicalUrl = "https://raw.githubusercontent.com/MCMrARM/mc-w10-versiondb/master/versions.txt";
+        private const string communityDBUrl = "https://www.raythnetwork.co.uk/versions.php?type=json";
+        private const string communityDBTechnicalUrl = "https://www.raythnetwork.co.uk/versions.php?type=txt";
 
         private string winstoreDBFile;
         private string winstoreDBTechnicalFile;
@@ -96,7 +96,7 @@ namespace BedrockLauncher.UpdateProcessor.Handlers
                 task.Start();
             }
         }
-        public async Task LoadVersions(bool getNewVersions)
+        public async Task LoadVersions(bool getNewVersions, bool checkMicrosoftStore)
         {
             Versions.Clear();
 
@@ -114,7 +114,7 @@ namespace BedrockLauncher.UpdateProcessor.Handlers
             var winStoreDBT = LoadTextDBVersions(winstoreDBTechnicalFile);
             var winStoreDB = LoadJsonDBVersions(winstoreDBFile);
 
-            if (getNewVersions)
+            if (getNewVersions && checkMicrosoftStore)
             {
                 await UpdateDBFromStore(winStoreDBT, winstoreDBTechnicalFile);
                 await UpdateDBFromStore(winStoreDB, winstoreDBFile);
@@ -125,6 +125,7 @@ namespace BedrockLauncher.UpdateProcessor.Handlers
         {
             try
             {
+                if (File.Exists(filePath)) File.Delete(filePath);
                 var resp = await HttpClient.GetAsync(url);
                 resp.EnsureSuccessStatusCode();
                 var data = await resp.Content.ReadAsStringAsync();
@@ -144,6 +145,7 @@ namespace BedrockLauncher.UpdateProcessor.Handlers
         {
             try
             {
+                if (File.Exists(filePath)) File.Delete(filePath);
                 await UpdateDB(VersionType.Beta);
                 await UpdateDB(VersionType.Release);
                 await UpdateDB(VersionType.Preview);
@@ -193,7 +195,9 @@ namespace BedrockLauncher.UpdateProcessor.Handlers
                 Trace.WriteLine("LoadJsonDBVersions Failed! Generating Blank VersionJsonDb");
                 Trace.WriteLine("File: " + filePath);
                 Trace.WriteLine(ex);
-                return new VersionJsonDb();
+                var db = new VersionJsonDb();
+                db.Save(filePath);
+                return db;
             }
 
         }
@@ -211,7 +215,9 @@ namespace BedrockLauncher.UpdateProcessor.Handlers
                 Trace.WriteLine("LoadTextDBVersions Failed! Generating Blank VersionTextDb");
                 Trace.WriteLine("File: " + filePath);
                 Trace.WriteLine(ex);
-                return new VersionTextDb();
+                var db = new VersionTextDb();
+                db.Save(filePath);
+                return db;
             }
 
         }

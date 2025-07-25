@@ -7,6 +7,7 @@ using System.IO;
 using BedrockLauncher.Classes;
 using BedrockLauncher.ViewModels;
 using BedrockLauncher.UpdateProcessor.Enums;
+using System.Diagnostics;
 
 namespace BedrockLauncher.Handlers
 {
@@ -25,18 +26,17 @@ namespace BedrockLauncher.Handlers
         public string InstallationsFolderName { get => "installations"; }
         public string PackageDataFolderName { get => "packageData"; }
         public string IconCacheFolderName { get => "icon_cache"; }
-        public string PrefabedIconRootPath { get => @"/BedrockLauncher;component/resources/images/installation_icons/"; }
 
         #endregion
 
         #region Common Paths
 
         public string CurrentLocation { get => (Properties.LauncherSettings.Default.PortableMode ? ExecutableDataDirectory : GetFixedPath()); }
-        public string ExecutableLocation { get => System.Reflection.Assembly.GetExecutingAssembly().Location; }
+        public string ExecutableLocation { get => System.Reflection.Assembly.GetEntryAssembly().Location; }
         public string ExecutableDirectory { get => Path.GetDirectoryName(ExecutableLocation); }
-        public string ExecutableDataDirectory 
-        { 
-            get 
+        public string ExecutableDataDirectory
+        {
+            get
             {
                 string path = Path.Combine(ExecutableDirectory, "data");
                 Directory.CreateDirectory(path);
@@ -44,6 +44,8 @@ namespace BedrockLauncher.Handlers
             }
         }
         public string DefaultLocation { get => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), AppDataFolderName); }
+        public string VersionsFolder => CurrentLocation + "\\versions\\";
+        public string ThemesFolder => CurrentLocation + "\\themes\\";
 
         #endregion
 
@@ -58,7 +60,20 @@ namespace BedrockLauncher.Handlers
             }
             else FixedDirectory = Properties.LauncherSettings.Default.FixedDirectory;
 
-            if (!Directory.Exists(FixedDirectory)) Directory.CreateDirectory(FixedDirectory);
+            if (!Directory.Exists(FixedDirectory))
+            {
+                try
+                {
+                    Directory.CreateDirectory(FixedDirectory);
+                }
+                catch (DirectoryNotFoundException)
+                {
+                    Trace.WriteLine("Unable to Create Fixed Directory. Reverting to Fallback");
+                    Properties.LauncherSettings.Default.FixedDirectory = string.Empty;
+                    FixedDirectory = DefaultLocation;
+                }
+                
+            }
             return FixedDirectory;
         }
 
@@ -92,22 +107,26 @@ namespace BedrockLauncher.Handlers
             if (!Directory.Exists(cache_dir)) Directory.CreateDirectory(cache_dir);
             return cache_dir;
         }
-        public string GetInstallationsFolderPath(string profileName, string installationDirectory)
+        public string GetProfilePath(string profileUUID)
         {
-            if (!MainViewModel.Default.Config.profiles.ContainsKey(profileName)) return string.Empty;
-            var profile = MainViewModel.Default.Config.profiles[profileName];
-            string InstallationsPath = Path.Combine(profile.ProfilePath, installationDirectory);
-            return Path.Combine(CurrentLocation, InstallationsFolderName, InstallationsPath, PackageDataFolderName);
+            if (string.IsNullOrEmpty(profileUUID)) return string.Empty;
+            else if (!MainDataModel.Default.Config.profiles.ContainsKey(profileUUID)) return string.Empty;
+            var profile = MainDataModel.Default.Config.profiles[profileUUID];
+            return Path.Combine(CurrentLocation, InstallationsFolderName, profile.ProfilePath);
         }
-        public string GetSkinPacksFolderPath(string InstallationsPath, VersionType type, bool DevFolder = false, bool HasSaveRedirection = true)
+        public string GetInstallationPath(string profileUUID, string installationDirectory)
         {
-            if (InstallationsPath == string.Empty) return string.Empty;
-            string[] Route = new string[] { (DevFolder ? "development_skin_packs" : "skin_packs") };
-            string PackageFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Packages", Constants.GetPackageFamily(type), "LocalState", "games", "com.mojang");
-
-
-            if (HasSaveRedirection) return Path.Combine(Route.Prepend(InstallationsPath).ToArray());
-            else return Path.Combine(Route.Prepend(PackageFolder).ToArray());
+            string ProfilePath = GetProfilePath(profileUUID);
+            if (string.IsNullOrEmpty(ProfilePath)) return string.Empty;
+            string InstallationsPath = Path.Combine(ProfilePath, installationDirectory);
+            return Path.Combine(CurrentLocation, InstallationsFolderName, InstallationsPath);
+        }
+        public string GetInstallationPackageDataPath(string profileUUID, string installationDirectory)
+        {
+            string ProfilePath = GetProfilePath(profileUUID);
+            if (string.IsNullOrEmpty(ProfilePath)) return string.Empty;
+            string InstallationsPath = Path.Combine(ProfilePath, installationDirectory);
+            return Path.Combine(CurrentLocation, InstallationsFolderName, InstallationsPath, PackageDataFolderName);
         }
 
 

@@ -3,7 +3,7 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:BedrockLauncher"
+      xmlns:local="clr-namespace:BedrockLauncher.Pages.News"
       xmlns:com="clr-namespace:JemExtensions.WPF.Behaviours;assembly=JemExtensions"
       mc:Ignorable="d" 
       d:DesignHeight="525" d:DesignWidth="828"
@@ -78,6 +78,7 @@
             <RowDefinition Height="120"></RowDefinition>
             <RowDefinition Height="1"></RowDefinition>
             <RowDefinition></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
         </Grid.RowDefinitions>
         <Border BorderBrush="Transparent" BorderThickness="0,0,0,0" CornerRadius="0" VerticalAlignment="Top">
             <Border.Effect>
@@ -97,14 +98,9 @@
             </Grid>
         </Border>
         <StackPanel HorizontalAlignment="Left" Height="35" VerticalAlignment="Bottom" Orientation="Horizontal">
-            <ToggleButton x:Name="OfficalTab" Width="Auto" Click="ButtonManager" Content="{DynamicResource NewsScreen_OfficialTabTitle}" Style="{DynamicResource ToolbarButton}" IsChecked="True">
+            <ToggleButton x:Name="JavaTab" Width="Auto" Click="ButtonManager" Content="{DynamicResource NewsScreen_OfficialTabTitle}" Style="{DynamicResource ToolbarButton}" IsChecked="True">
                 <ToggleButton.ToolTip>
                     <ToolTip Content="{DynamicResource NewsScreen_OfficialTabTitle}"/>
-                </ToggleButton.ToolTip>
-            </ToggleButton>
-            <ToggleButton x:Name="JavaTab" Width="Auto" Click="ButtonManager" Content="{DynamicResource NewsScreen_JavaNDungeonsTabTitle}" Style="{DynamicResource ToolbarButton}">
-                <ToggleButton.ToolTip>
-                    <ToolTip Content="{DynamicResource NewsScreen_JavaNDungeonsTabTitle}"/>
                 </ToggleButton.ToolTip>
             </ToggleButton>
             <ToggleButton x:Name="ForumsTab" Width="Auto" Click="ButtonManager" Content="{DynamicResource NewsScreen_MinecraftForumsTitle}" Style="{DynamicResource ToolbarButton}">
@@ -121,6 +117,11 @@
         <Image Margin="0,15,0,0" Height="68" VerticalAlignment="Top" Source="/BedrockLauncher;component/resources/images/logo/logo.png" RenderOptions.BitmapScalingMode="HighQuality"></Image>
         <Separator Padding="0" Margin="0" Grid.Row="1"></Separator>
         <Frame x:Name="ContentFrame" ClipToBounds="True" com:DisableNavigation.Disable="True" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="2" NavigationUIVisibility="Hidden"/>
+        <Border Grid.Row="3" BorderBrush="{DynamicResource Seperator.Background}" BorderThickness="0,1,0,0">
+            <Grid Background="#FF303030">
+                <Button Margin="0,1" FontSize="14" x:Name="RefreshButton" HorizontalAlignment="Right" Click="RefreshButton_Click" Content="{DynamicResource GeneralText_Refresh}" Style="{DynamicResource LinkButton}"></Button>
+            </Grid>
+        </Border>
     </Grid>
 
 
