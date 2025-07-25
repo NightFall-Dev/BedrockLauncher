@@ -5,13 +5,11 @@
 An unofficial **Minecraft for Windows 10** launcher that enables similar features from the **Minecraft Java Edition Launcher**.
 
 [![Website](https://img.shields.io/github/v/tag/BedrockLauncher/BedrockLauncher.GitHub.io?color=blue&label=Visit%20Official%20Website&logo=github&style=for-the-badge)](https://bedrocklauncher.github.io/)
-[![Download](https://img.shields.io/github/v/release/BedrockLauncher/BedrockLauncher?color=brightgreen&label=Download%20Installer&logo=windows&style=for-the-badge)](https://github.com/BedrockLauncher/BedrockLauncher.Installer/releases/latest/download/BedrockLauncher.Installer.exe)
-
-[![AppVeyor](https://img.shields.io/appveyor/build/CarJem/bedrocklauncher?labelColor=FFFFFF&label=Appveyor&logo=appveyor&style=for-the-badge)](https://ci.appveyor.com/project/CarJem/bedrocklauncher)
+[![Download Release](https://img.shields.io/github/v/release/BedrockLauncher/BedrockLauncher?label=Download%20Release&logo=windows&sort=date&style=for-the-badge)](https://github.com/BedrockLauncher/BedrockLauncher/releases/latest/)
 [![Crowdin](https://img.shields.io/static/v1?color=282C34&labelColor=282C34&label=Crowdin&message=Translate&logo=crowdin&style=for-the-badge)](https://crowdin.com/project/bedrocklauncher)
 
 ## Prerequisites
-This launcher has both hardware and software prerequisite to ensure quality, performance, and stability:
+This launcher has both hardware and software prerequisites to ensure quality, performance, and stability:
 - [Hardware prerequisites](./docs/HARDWARE_PREREQUISITES.md)
 - [Software prerequisites](./docs/SOFTWARE_PREREQUISITES.md)
 

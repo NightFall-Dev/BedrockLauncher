@@ -6,7 +6,6 @@ using System.Linq;
 using System;
 using Microsoft.Win32;
 using System.IO;
-using BedrockLauncher.Extensions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using BedrockLauncher.Classes;
@@ -20,6 +19,13 @@ namespace BedrockLauncher
     /// </summary>
     public partial class App : Application
     {
+        public static string Version
+        {
+            get
+            {
+                return System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString();
+            }
+        }
         public App() : base()
         {
             this.DispatcherUnhandledException += RuntimeHandler.OnDispatcherUnhandledException;

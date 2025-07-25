@@ -3,7 +3,7 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:BedrockLauncher"
+      xmlns:local="clr-namespace:BedrockLauncher.Pages.Settings"
       xmlns:com="clr-namespace:JemExtensions.WPF.Behaviours;assembly=JemExtensions"
       Loaded="Page_Loaded"
       mc:Ignorable="d"
@@ -28,11 +28,6 @@
                     <ToggleButton x:Name="VersionsButton" Width="Auto" Click="ButtonManager" Content="{DynamicResource SettingsTab_VersionsButton}" Style="{DynamicResource ToolbarButton}">
                         <ToggleButton.ToolTip>
                             <ToolTip Content="{DynamicResource SettingsTab_VersionsButton}"/>
-                        </ToggleButton.ToolTip>
-                    </ToggleButton>
-                    <ToggleButton x:Name="AccountsButton" Width="Auto" Click="ButtonManager" Content="{DynamicResource SettingsTab_AccountsButton}" Style="{DynamicResource ToolbarButton}">
-                        <ToggleButton.ToolTip>
-                            <ToolTip Content="{DynamicResource SettingsTab_AccountsButton}"/>
                         </ToggleButton.ToolTip>
                     </ToggleButton>
                     <ToggleButton x:Name="AboutButton" Width="Auto" Click="ButtonManager" Content="{DynamicResource SettingsTab_AboutButton}" Style="{DynamicResource ToolbarButton}">

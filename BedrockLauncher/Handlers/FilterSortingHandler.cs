@@ -16,15 +16,16 @@ namespace BedrockLauncher.Handlers
 {
     public class FilterSortingHandler
     {
-        public static InstallationSort InstallationsSortMode { get; set; } = InstallationSort.LatestPlayed;
-        public static SortDescription GetInstallationSortDescriptor()
+        public static SortDescription? GetInstallationSortDescriptor()
         {
-            switch (InstallationsSortMode)
+            switch (Properties.LauncherSettings.Default.InstallationsSortMode)
             {
                 case InstallationSort.LatestPlayed:
                     return new SortDescription(nameof(BLInstallation.LastPlayedT), ListSortDirection.Descending);
                 case InstallationSort.Name:
                     return new SortDescription(nameof(BLInstallation.DisplayName), ListSortDirection.Ascending);
+                case InstallationSort.None:
+                    return null;
                 default:
                     return new SortDescription(nameof(BLInstallation.LastPlayedT), ListSortDirection.Descending);
             }
@@ -42,7 +43,8 @@ namespace BedrockLauncher.Handlers
             if (view != null)
             {
                 view.SortDescriptions.Clear();
-                view.SortDescriptions.Add(GetInstallationSortDescriptor());
+                var result = GetInstallationSortDescriptor();
+                if (result != null) view.SortDescriptions.Add(result.Value);
                 view.Refresh();
             }
         }
@@ -51,8 +53,9 @@ namespace BedrockLauncher.Handlers
         {
             BLInstallation v = obj as BLInstallation;
             if (v == null) return false;
+            else if (!Properties.LauncherSettings.Default.ShowPreviews && v.IsPreview) return false;
             else if (!Properties.LauncherSettings.Default.ShowBetas && v.IsBeta) return false;
-            else if (!Properties.LauncherSettings.Default.ShowReleases && !v.IsBeta) return false;
+            else if (!Properties.LauncherSettings.Default.ShowReleases && v.IsRelease) return false;
             else if (!v.DisplayName.Contains(InstallationsSearchFilter)) return false;
             else return true;
         }
@@ -61,8 +64,9 @@ namespace BedrockLauncher.Handlers
             MCVersion v = (obj as MCVersion);
             if (v != null && v.IsInstalled)
             {
-                if (Properties.LauncherSettings.Default.ShowBetas && v.IsBeta) return true;
-                else if (Properties.LauncherSettings.Default.ShowReleases && !v.IsBeta) return true;
+                if (Properties.LauncherSettings.Default.ShowPreviews && v.IsPreview) return true;
+                else if (Properties.LauncherSettings.Default.ShowBetas && v.IsBeta) return true;
+                else if (Properties.LauncherSettings.Default.ShowReleases && v.IsRelease) return true;
                 else return false;
             }
             else return false;
@@ -71,10 +75,10 @@ namespace BedrockLauncher.Handlers
 
         public static bool Filter_OfficalNewsFeed(object obj)
         {
-            if (!(obj is NewsItem_Offical)) return false;
+            if (!(obj is News_OfficalItem)) return false;
             else
             {
-                var item = (obj as NewsItem_Offical);
+                var item = (obj as News_OfficalItem);
                 if (item.newsType != null && item.newsType.Contains("News page"))
                 {
                     if (item.category == "Minecraft: Java Edition" && NewsViewModel.Default.Offical_ShowJavaContent) return ContainsText(item);
@@ -85,7 +89,7 @@ namespace BedrockLauncher.Handlers
                 else return false;
             }
 
-            bool ContainsText(NewsItem_Offical _item)
+            bool ContainsText(News_OfficalItem _item)
             {
                 string searchParam = NewsViewModel.Default.Offical_SearchBoxText;
                 if (string.IsNullOrEmpty(searchParam) || _item.title.Contains(searchParam, StringComparison.OrdinalIgnoreCase)) return true;

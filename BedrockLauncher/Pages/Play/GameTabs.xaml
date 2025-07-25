@@ -3,7 +3,7 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:BedrockLauncher"
+      xmlns:local="clr-namespace:BedrockLauncher.Pages.Play"
       xmlns:com="clr-namespace:JemExtensions.WPF.Behaviours;assembly=JemExtensions"
       mc:Ignorable="d"
       Title="{DynamicResource GameTab_Title}" Foreground="{x:Null}" Background="#FF303030" Loaded="Page_Loaded">
@@ -19,26 +19,26 @@
             <Grid Background="{DynamicResource Background.Primary}">
                 <Label Content="{DynamicResource GameTab_Title}" Margin="12,27,600,0" Style="{DynamicResource TabTitle}"/>
                 <StackPanel HorizontalAlignment="Left" Height="35" VerticalAlignment="Top" Orientation="Horizontal" Margin="5,49,0,0">
-                    <ToggleButton x:Name="PlayButton" Width="Auto" Click="ButtonManager2" Content="{DynamicResource ResourceKey=GameTab_PlayButton_Text}" Style="{StaticResource ToolbarButton}" IsChecked="True">
+                    <ToggleButton x:Name="PlayButton" Width="Auto" Click="ButtonManager2" Content="{DynamicResource ResourceKey=GameTab_PlayButton_Text}" Style="{DynamicResource ToolbarButton}" IsChecked="True">
                         <ToggleButton.ToolTip>
                             <ToolTip Content="{DynamicResource GameTab_PlayButton_Text}"/>
                         </ToggleButton.ToolTip>
                     </ToggleButton>
-                    <ToggleButton x:Name="InstallationsButton" Width="Auto" Click="ButtonManager2" Content="{DynamicResource ResourceKey=GameTab_InstallationsButton_Text}"  Style="{StaticResource ToolbarButton}">
+                    <ToggleButton x:Name="CreatorToolsButton" Width="Auto" Click="ButtonManager2" Content="{DynamicResource ResourceKey=GameTab_CreatorToolsButton_Text}" Style="{DynamicResource ToolbarButton}">
+                        <ToggleButton.ToolTip>
+                            <ToolTip Content="{DynamicResource GameTab_CreatorToolsButton_Text}"/>
+                        </ToggleButton.ToolTip>
+                    </ToggleButton>
+                    <ToggleButton x:Name="InstallationsButton" Width="Auto" Click="ButtonManager2" Content="{DynamicResource ResourceKey=GameTab_InstallationsButton_Text}"  Style="{DynamicResource ToolbarButton}">
                         <ToggleButton.ToolTip>
                             <ToolTip Content="{DynamicResource GameTab_InstallationsButton_Text}"/>
                         </ToggleButton.ToolTip>
                     </ToggleButton>
-                    <ToggleButton x:Name="SkinsButton" Width="Auto" Click="ButtonManager2" Content="{DynamicResource ResourceKey=GameTab_SkinsButton_Text}"  Style="{StaticResource ToolbarButton}">
-                        <ToggleButton.ToolTip>
-                            <ToolTip Content="{DynamicResource GameTab_SkinsButton_Text}"/>
-                        </ToggleButton.ToolTip>
-                    </ToggleButton>
-                    <ToggleButton x:Name="PatchNotesButton" Width="Auto" Click="ButtonManager2" Content="{DynamicResource ResourceKey=GameTab_PatchNotesButton_Text}" Style="{StaticResource ToolbarButton}">
+                    <!--<ToggleButton x:Name="PatchNotesButton" Width="Auto" Click="ButtonManager2" Content="{DynamicResource ResourceKey=GameTab_PatchNotesButton_Text}" Style="{DynamicResource ToolbarButton}">
                         <ToggleButton.ToolTip>
                             <ToolTip Content="{DynamicResource GameTab_PatchNotesButton_Text}"/>
                         </ToggleButton.ToolTip>
-                    </ToggleButton>
+                    </ToggleButton>-->
                 </StackPanel>
             </Grid>
         </Border>

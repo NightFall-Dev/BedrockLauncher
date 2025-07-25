@@ -1,12 +1,10 @@
 ﻿using BedrockLauncher.Classes;
-using BedrockLauncher.Classes.SkinPack;
-using BedrockLauncher.Extensions;
-using BedrockLauncher.Pages.Common;
 using BedrockLauncher.Downloaders;
 using JemExtensions;
 using SymbolicLinkSupport;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -26,14 +24,15 @@ using BedrockLauncher.Enums;
 using System.Windows.Input;
 using BedrockLauncher.ViewModels;
 using BedrockLauncher.Exceptions;
-using BedrockLauncher.UI.Pages.Common;
-using BedrockLauncher.UI.Components;
 using BedrockLauncher.UpdateProcessor;
 using BedrockLauncher.UpdateProcessor.Authentication;
 using BedrockLauncher.UpdateProcessor.Handlers;
 using BedrockLauncher.Classes.Launcher;
 using Windows.System.Diagnostics;
 using BedrockLauncher.UpdateProcessor.Enums;
+using JemExtensions.WPF.Commands;
+using BedrockLauncher.UI.Pages.Common;
+using System.Collections;
 
 namespace BedrockLauncher.Handlers
 {
@@ -49,26 +48,57 @@ namespace BedrockLauncher.Handlers
 
         #region Public Methods
 
-        public async Task LaunchPackage(MCVersion v, string dirPath, bool KeepLauncherOpen)
+        public async Task LaunchPackage(MCVersion v, string dirPath, bool KeepLauncherOpen, bool LaunchEditor)
         {
             try
             {
                 StartTask();
+                MainDataModel.Default.ProgressBarState.SetProgressBarState(LauncherState.isLaunching);
+                if (await Launcher.LaunchUriAsync(new Uri($"{Constants.GetUri(v.Type)}:?Editor={LaunchEditor}")))
+                {
+                    Trace.WriteLine("App launch finished!");
+                    if (!KeepLauncherOpen)
+                        await Application.Current.Dispatcher.InvokeAsync(() => Application.Current.MainWindow.Close());
+                    else
+                        await GetGameHandle(Constants.MINECRAFT_PROCESS_NAME);
+                }
+                else if (!LaunchEditor)
+                {
+                    Trace.WriteLine($"Failed to open {Constants.GetUri(v.Type)} URI. Attempting package launch.");
 
+                    AppActivationResult activationResult = null;
+                    var pkg = await AppDiagnosticInfo.RequestInfoForPackageAsync(Constants.GetPackageFamily(v.Type));
+                    if (pkg.Count > 0)
+                        activationResult = await pkg[0].LaunchAsync();
+                    if (KeepLauncherOpen && activationResult != null)
+                        await GetGameHandle(Constants.MINECRAFT_PROCESS_NAME);
+                    Trace.WriteLine("App launch finished!");
+                }
+                else
+                {
+                    SetException(new AppLaunchFailedException($"Impossible to launch Editor: Failed to open {Constants.GetUri(v.Type)} URI", new Exception()));
+                }
+            }
+            catch (Exception e)
+            {
+                EndTask();
+                SetException(new AppLaunchFailedException(e));
+            }
+        }
+
+
+        public async Task InstallPackage(MCVersion v, string dirPath)
+        {
+            try
+            {
+                StartTask();
                 if (!v.IsInstalled) await DownloadAndExtractPackage(v);
 
-                await RedirectSaveData(dirPath, v.Type);
                 await UnregisterPackage(v, true);
                 await RegisterPackage(v);
 
-                MainViewModel.Default.ProgressBarState.SetProgressBarState(LauncherState.isLaunching);
+                await RedirectSaveData(dirPath, v.Type);
 
-                var pkg = await AppDiagnosticInfo.RequestInfoForPackageAsync(Constants.GetPackageFamily(v.Type));
-                AppActivationResult activationResult = null;
-                if (pkg.Count > 0) activationResult = await pkg[0].LaunchAsync();
-                Trace.WriteLine("App launch finished!");
-                if (KeepLauncherOpen && activationResult != null) await UpdatePackageHandle(activationResult);
-                if (KeepLauncherOpen == false) await Application.Current.Dispatcher.InvokeAsync(() => Application.Current.MainWindow.Close());
             }
             catch (PackageManagerException e)
             {
@@ -76,7 +106,7 @@ namespace BedrockLauncher.Handlers
             }
             catch (Exception e)
             {
-                SetException(new AppLaunchFailedException(e));
+                SetException(new AppInstallFailedException(e));
             }
             finally
             {
@@ -87,9 +117,8 @@ namespace BedrockLauncher.Handlers
         {
             if (GameHandle != null)
             {
-                var title = Application.Current.FindResource("Dialog_KillGame_Title") as string;
-                var content = Application.Current.FindResource("Dialog_KillGame_Text") as string;
-
+                string title = BedrockLauncher.Localization.Language.LanguageManager.GetResource("Dialog_KillGame_Title") as string;
+                string content = BedrockLauncher.Localization.Language.LanguageManager.GetResource("Dialog_KillGame_Text") as string;
                 var result = await DialogPrompt.ShowDialog_YesNo(title, content);
 
                 if (result == System.Windows.Forms.DialogResult.Yes) GameHandle.Kill();
@@ -101,18 +130,57 @@ namespace BedrockLauncher.Handlers
             {
                 StartTask();
 
-                MainViewModel.Default.ProgressBarState.SetProgressBarState(LauncherState.isUninstalling);
-                await UnregisterPackage(v);
+                MainDataModel.Default.ProgressBarState.SetProgressBarState(LauncherState.isUninstalling);
+                await UnregisterPackage(v, false, true);
+                MainDataModel.Default.ProgressBarState.SetProgressBarState(LauncherState.isUninstalling);
                 await DirectoryExtensions.DeleteAsync(v.GameDirectory, (x, y, phase) => ProgressWrapper(x, y, phase), "Files", "Folders");
+                if (Directory.Exists(v.GameDirectory)) Directory.Delete(v.GameDirectory, true);
                 v.UpdateFolderSize();
+                await Task.Run(Program.OnApplicationRefresh);
+                foreach (var ver in MainDataModel.Default.Versions) ver.UpdateFolderSize();
             }
             catch (PackageManagerException e)
             {
                 SetException(e);
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 SetException(new PackageRemovalFailedException(ex));
+            }
+            finally
+            {
+                EndTask();
+            }
+        }
+        public async Task AddPackage(string packagePath)
+        {
+            try
+            {
+                if (!File.Exists(packagePath)) return;
+                StartTask();
+                var outputDirectoryName = FileExtensions.GetAvaliableFileName(Path.GetFileNameWithoutExtension(packagePath), MainDataModel.Default.FilePaths.VersionsFolder);
+                var outputDirectoryPath = Path.Combine(MainDataModel.Default.FilePaths.VersionsFolder, outputDirectoryName);
+                Trace.WriteLine("Extraction started");
+                MainDataModel.Default.ProgressBarState.SetProgressBarState(LauncherState.isExtracting);
+                if (Directory.Exists(outputDirectoryPath)) Directory.Delete(outputDirectoryPath, true);
+                var fileStream = File.OpenRead(packagePath);
+                var progress = new Progress<ZipProgress>();
+                progress.ProgressChanged += (s, z) => MainDataModel.Default.ProgressBarState.SetProgressBarProgress(currentProgress: z.Processed, totalProgress: z.Total);
+                await Task.Run(() => new ZipArchive(fileStream).ExtractToDirectory(outputDirectoryPath, progress, CancelSource));
+                fileStream.Close();
+                File.Delete(Path.Combine(outputDirectoryPath, "AppxSignature.p7x"));
+                File.Move(packagePath, Path.Combine(MainDataModel.Default.FilePaths.VersionsFolder, "AppxBackups", packagePath));
+                Trace.WriteLine("Extracted successfully");
+                await Task.Run(Program.OnApplicationRefresh);
+                foreach (var ver in MainDataModel.Default.Versions) ver.UpdateFolderSize();
+            }
+            catch (PackageManagerException e)
+            {
+                SetException(e);
+            }
+            catch (Exception e)
+            {
+                SetException(new PackageAddFailedException(e));
             }
             finally
             {
@@ -148,6 +216,57 @@ namespace BedrockLauncher.Handlers
 
         #region Private Throwable Methods
 
+        private async Task GetGameHandle(string processName)
+        {
+            await Task.Run(() =>
+            {
+                try
+                {
+                    Process[] MinecraftProcesses = Process.GetProcessesByName(processName);
+                    while (MinecraftProcesses.Length == 0)
+                        Process.GetProcessesByName(processName);
+
+                    if (MinecraftProcesses.Length == 1)
+                    {
+                        MainDataModel.Default.ProgressBarState.SetGameRunningStatus(true);
+                        GameHandle = MinecraftProcesses[0];
+                        GameHandle.EnableRaisingEvents = true;
+                        GameHandle.Exited += OnPackageExit;
+
+
+                        void OnPackageExit(object sender, EventArgs e)
+                        {
+                            Process p = sender as Process;
+                            p.Exited -= OnPackageExit;
+                            GameHandle = null;
+                            MainDataModel.Default.ProgressBarState.SetGameRunningStatus(false);
+                        }
+
+                        Trace.WriteLine("Successfully attached Minecraft process");
+                    }
+                    else
+                    {
+                        Trace.WriteLine("Failed to attach Minecraft process: Too many processes found");
+                        GameHandle = null;
+                        MainDataModel.Default.ProgressBarState.SetGameRunningStatus(false);
+                    }
+                }
+                catch (InvalidOperationException e)
+                {
+                    throw e;
+                }
+                catch (Exception e)
+                {
+                    throw new PackageProcessHookFailedException(e);
+                }
+                finally
+                {
+                    EndTask();
+                }
+            });
+
+        }
+
         private async Task DownloadAndExtractPackage(MCVersion v)
         {
             try
@@ -155,12 +274,19 @@ namespace BedrockLauncher.Handlers
                 Trace.WriteLine("Download start");
                 SetCancelation(true);
 
-                string dlPath = "Minecraft-" + v.Name + ".Appx";
-                await DownloadPackage(v, dlPath, CancelSource);
-                await ExtractPackage(v, dlPath, CancelSource);
+                string subDirectory = Path.Combine(MainDataModel.Default.FilePaths.VersionsFolder, "AppxBackups");
+                if (!Directory.Exists(subDirectory))
+                {
+                    Directory.CreateDirectory(subDirectory);
+                }
 
-                SetCancelation(false);
-                CancelSource = null;
+                string dlPath = "Minecraft-" + v.Name + ".Appx";
+                string bkpsPath = Path.Combine(subDirectory, dlPath);
+                string pkgPath = File.Exists(bkpsPath) ? bkpsPath : dlPath;
+
+                if (!File.Exists(bkpsPath)) await DownloadPackage(v, dlPath, CancelSource);
+                await ExtractPackage(v, dlPath, bkpsPath, pkgPath, CancelSource);
+
                 v.UpdateFolderSize();
             }
             catch (PackageManagerException e)
@@ -176,6 +302,8 @@ namespace BedrockLauncher.Handlers
             finally
             {
                 ResetTask();
+                SetCancelation(false);
+                CancelSource = null;
             }
 
         }
@@ -184,9 +312,9 @@ namespace BedrockLauncher.Handlers
             try
             {
                 if (v.IsBeta) await AuthenticateBetaUser();
-                MainViewModel.Default.ProgressBarState.SetProgressBarState(LauncherState.isDownloading);
+                MainDataModel.Default.ProgressBarState.SetProgressBarState(LauncherState.isDownloading);
                 Trace.WriteLine("Download starting");
-                await VersionDownloader.DownloadVersion(v.DisplayName, v.UUID, 1, dlPath, (x, y) => ProgressWrapper(x, y), cancelSource.Token, v.Type);
+                await VersionDownloader.DownloadVersion(v.DisplayName, v.PackageID, 1, dlPath, (x, y) => ProgressWrapper(x, y), cancelSource.Token, v.Type);
                 Trace.WriteLine("Download complete");
             }
             catch (PackageManagerException e)
@@ -214,8 +342,8 @@ namespace BedrockLauncher.Handlers
             try
             {
                 Trace.WriteLine("Registering package");
-                MainViewModel.Default.ProgressBarState.SetProgressBarText(v.GetPackageNameFromMainifest());
-                MainViewModel.Default.ProgressBarState.SetProgressBarState(LauncherState.isRegisteringPackage);
+                MainDataModel.Default.ProgressBarState.SetProgressBarText(v.GetPackageNameFromMainifest());
+                MainDataModel.Default.ProgressBarState.SetProgressBarState(LauncherState.isRegisteringPackage);
                 await DeploymentProgressWrapper(PM.RegisterPackageAsync(new Uri(v.ManifestPath), null, Constants.PackageDeploymentOptions));
                 Trace.WriteLine("App re-register done!");
             }
@@ -235,24 +363,32 @@ namespace BedrockLauncher.Handlers
             }
 
         }
-        private async Task ExtractPackage(MCVersion v, string dlPath, CancellationTokenSource cancelSource)
+        private async Task ExtractPackage(MCVersion v, string dlPath, string bkpsPath, string pkgPath, CancellationTokenSource cancelSource)
         {
             try
             {
                 Trace.WriteLine("Extraction started");
-                MainViewModel.Default.ProgressBarState.SetProgressBarState(LauncherState.isExtracting);
+                MainDataModel.Default.ProgressBarState.SetProgressBarState(LauncherState.isExtracting);
 
                 if (Directory.Exists(v.GameDirectory))
                     await DirectoryExtensions.DeleteAsync(v.GameDirectory, (x, y, phase) => ProgressWrapper(x, y, phase));
 
-                var fileStream = File.OpenRead(dlPath);
+                var fileStream = File.OpenRead(pkgPath);
                 var progress = new Progress<ZipProgress>();
-                progress.ProgressChanged += (s, z) => MainViewModel.Default.ProgressBarState.SetProgressBarProgress(currentProgress: z.Processed, totalProgress: z.Total);
+                progress.ProgressChanged += (s, z) => MainDataModel.Default.ProgressBarState.SetProgressBarProgress(currentProgress: z.Processed, totalProgress: z.Total);
                 await Task.Run(() => new ZipArchive(fileStream).ExtractToDirectory(v.GameDirectory, progress, cancelSource));
 
                 fileStream.Close();
+                await File.WriteAllTextAsync(v.IdentificationPath, v.PackageID);
                 File.Delete(Path.Combine(v.GameDirectory, "AppxSignature.p7x"));
-                File.Delete(dlPath);
+
+                if (!File.Exists(bkpsPath))
+                {
+                    if (Properties.LauncherSettings.Default.KeepAppx)
+                        File.Move(dlPath, bkpsPath);
+                    else
+                        File.Delete(dlPath);
+                }
 
                 Trace.WriteLine("Extracted successfully");
             }
@@ -263,7 +399,7 @@ namespace BedrockLauncher.Handlers
             }
             catch (TaskCanceledException e)
             {
-                MainViewModel.Default.ProgressBarState.SetProgressBarState(LauncherState.isCanceling);
+                MainDataModel.Default.ProgressBarState.SetProgressBarState(LauncherState.isCanceling);
                 await DirectoryExtensions.DeleteAsync(v.GameDirectory, (x, y, phase) => ProgressWrapper(x, y, phase));
                 ResetTask();
                 throw new PackageExtractionCanceledException(e);
@@ -278,7 +414,7 @@ namespace BedrockLauncher.Handlers
                 ResetTask();
             }
         }
-        private async Task UnregisterPackage(MCVersion v, bool keepVersion = false)
+        private async Task UnregisterPackage(MCVersion v, bool keepVersion = false, bool mustMatchVersion = false)
         {
             try
             {
@@ -295,10 +431,12 @@ namespace BedrockLauncher.Handlers
                         continue;
                     }
 
+                    if (location != v.GameDirectory && mustMatchVersion) continue;
+
                     Trace.WriteLine("Removing package: " + pkg.Id.FullName);
 
-                    MainViewModel.Default.ProgressBarState.SetProgressBarText(pkg.Id.FullName);
-                    MainViewModel.Default.ProgressBarState.SetProgressBarState(LauncherState.isRemovingPackage);
+                    MainDataModel.Default.ProgressBarState.SetProgressBarText(pkg.Id.FullName);
+                    MainDataModel.Default.ProgressBarState.SetProgressBarState(LauncherState.isRemovingPackage);
                     await DeploymentProgressWrapper(PM.RemovePackageAsync(pkg.Id.FullName, Constants.PackageRemovalOptions));
                     Trace.WriteLine("Removal of package done: " + pkg.Id.FullName);
                 }
@@ -331,20 +469,10 @@ namespace BedrockLauncher.Handlers
                     string PackageBakFolder = Path.Combine(localAppData, "Packages", Constants.GetPackageFamily(type), "LocalState", "games", "com.mojang.default");
                     string ProfileFolder = Path.GetFullPath(InstallationsFolderPath);
 
-                    if (Directory.Exists(PackageFolder))
-                    {
-                        var dir = new DirectoryInfo(PackageFolder);
-                        bool isSymbolic = dir.IsSymbolicLink();
+                    string RequiredDir = Directory.GetParent(PackageFolder).FullName;
+                    if (Directory.Exists(PackageFolder)) Directory.Delete(PackageFolder, true);
+                    if (!Directory.Exists(RequiredDir)) Directory.CreateDirectory(RequiredDir);
 
-                        if (!isSymbolic)
-                        {
-                            int i = 1;
-                            var finalString = PackageBakFolder;
-                            while (Directory.Exists(finalString)) finalString = $"{PackageBakFolder}.{i++}";
-                            dir.MoveTo(finalString);
-                        }
-                        else dir.Delete(true);
-                    }
 
                     DirectoryInfo profileDir = Directory.CreateDirectory(ProfileFolder);
                     SymLinkHelper.CreateSymbolicLink(PackageFolder, ProfileFolder, SymLinkHelper.SymbolicLinkType.Directory);
@@ -407,46 +535,10 @@ namespace BedrockLauncher.Handlers
             }
             catch (Exception e)
             {
-                System.Diagnostics.Trace.WriteLine("Error while Authenticating UserToken for Version Fetching:\n" + e);
+                System.Diagnostics.Trace.WriteLine("Error while Authenticating UserToken for Version Fetching:\n" + e); //TODO: Localize Error Message
                 throw new BetaAuthenticationFailedException(e);
             }
         }
-        private async Task UpdatePackageHandle(AppActivationResult app)
-        {
-            await Task.Run(() =>
-            {
-                try
-                {
-                    List<ProcessDiagnosticInfo> result = app.AppResourceGroupInfo.GetProcessDiagnosticInfos().ToList();
-                    if (result == null || result.Count == 0) return;
-
-                    MainViewModel.Default.ProgressBarState.SetGameRunningStatus(true);
-
-                    var ProcessId = (int)result.First().ProcessId;
-                    GameHandle = Process.GetProcessById(ProcessId);
-                    GameHandle.EnableRaisingEvents = true;
-                    GameHandle.Exited += OnPackageExit;
-                }
-                catch (PackageManagerException e)
-                {
-                    throw e;
-                }
-                catch (Exception ex)
-                {
-                    throw new PackageProcessHookFailedException(ex);
-                }
-            });
-
-
-            void OnPackageExit(object sender, EventArgs e)
-            {
-                Process p = sender as Process;
-                p.Exited -= OnPackageExit;
-                GameHandle = null;
-                MainViewModel.Default.ProgressBarState.SetGameRunningStatus(false);
-            }
-        }
-
         #endregion
 
         #region Helpers
@@ -454,10 +546,10 @@ namespace BedrockLauncher.Handlers
         protected async Task DeploymentProgressWrapper(IAsyncOperationWithProgress<DeploymentResult, DeploymentProgress> t)
         {
             TaskCompletionSource<int> src = new TaskCompletionSource<int>();
-            t.Progress += (v, p) => MainViewModel.Default.ProgressBarState.SetProgressBarProgress(currentProgress: Convert.ToInt64(p.percentage), totalProgress: 100);
+            t.Progress += (v, p) => MainDataModel.Default.ProgressBarState.SetProgressBarProgress(currentProgress: Convert.ToInt64(p.percentage), totalProgress: 100);
             t.Completed += (v, p) =>
             {
-                MainViewModel.Default.ProgressBarState.ResetProgressBarProgress();
+                MainDataModel.Default.ProgressBarState.ResetProgressBarProgress();
 
                 if (p == AsyncStatus.Error)
                 {
@@ -474,33 +566,33 @@ namespace BedrockLauncher.Handlers
         }
         protected void ProgressWrapper(long current, long total, string text = null)
         {
-            MainViewModel.Default.ProgressBarState.SetProgressBarProgress(current, total);
-            MainViewModel.Default.ProgressBarState.SetProgressBarText(text);
+            MainDataModel.Default.ProgressBarState.SetProgressBarProgress(current, total);
+            MainDataModel.Default.ProgressBarState.SetProgressBarText(text);
         }
         protected void ResetTask()
         {
-            MainViewModel.Default.ProgressBarState.ResetProgressBarProgress();
-            MainViewModel.Default.ProgressBarState.SetProgressBarText();
-            MainViewModel.Default.ProgressBarState.SetProgressBarState(LauncherState.None);
+            MainDataModel.Default.ProgressBarState.ResetProgressBarProgress();
+            MainDataModel.Default.ProgressBarState.SetProgressBarText();
+            MainDataModel.Default.ProgressBarState.SetProgressBarState(LauncherState.None);
         }
         protected void EndTask()
         {
-            MainViewModel.Default.ProgressBarState.ResetProgressBarProgress();
-            MainViewModel.Default.ProgressBarState.SetProgressBarText();
-            MainViewModel.Default.ProgressBarState.SetProgressBarState(LauncherState.None);
-            MainViewModel.Default.ProgressBarState.SetProgressBarVisibility(false);
+            MainDataModel.Default.ProgressBarState.ResetProgressBarProgress();
+            MainDataModel.Default.ProgressBarState.SetProgressBarText();
+            MainDataModel.Default.ProgressBarState.SetProgressBarState(LauncherState.None);
+            MainDataModel.Default.ProgressBarState.SetProgressBarVisibility(false);
         }
         protected void StartTask()
         {
-            MainViewModel.Default.ProgressBarState.SetProgressBarState(LauncherState.isInitializing);
-            MainViewModel.Default.ProgressBarState.SetProgressBarVisibility(true);
+            MainDataModel.Default.ProgressBarState.SetProgressBarState(LauncherState.isInitializing);
+            MainDataModel.Default.ProgressBarState.SetProgressBarVisibility(true);
 
         }
         protected void SetCancelation(bool cancelState)
         {
             if (cancelState) CancelSource = new CancellationTokenSource();
-            MainViewModel.Default.ProgressBarState.AllowCancel = cancelState ? true : false;
-            MainViewModel.Default.ProgressBarState.CancelCommand = cancelState ? new RelayCommand((o) => Cancel()) : null;
+            MainDataModel.Default.ProgressBarState.AllowCancel = cancelState ? true : false;
+            MainDataModel.Default.ProgressBarState.CancelCommand = cancelState ? new RelayCommand((o) => Cancel()) : null;
         }
         protected void SetException(Exception e)
         {
@@ -528,13 +620,13 @@ namespace BedrockLauncher.Handlers
 
             void SetGenericError(Exception ex)
             {
-                ErrorScreenShow.exceptionmsg(ex);
+                _ = MainDataModel.BackwardsCommunicationHost.exceptionmsg(ex);
             }
 
             void SetError(Exception ex2, string debugMessage, string dialogTitle, string dialogText)
             {
                 Trace.WriteLine(debugMessage + ":\n" + ex2.ToString());
-                ErrorScreenShow.errormsg(dialogTitle, dialogText, ex2);
+                MainDataModel.BackwardsCommunicationHost.errormsg(dialogTitle, dialogText, ex2);
             }
         }
 

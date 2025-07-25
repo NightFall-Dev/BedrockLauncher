@@ -1,5 +1,11 @@
-﻿using System;
+﻿using BedrockLauncher.Classes;
+using BedrockLauncher.Enums;
+using JemExtensions;
+using PostSharp.Patterns.Model;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,11 +13,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
-using PostSharp.Patterns.Model;
-using BedrockLauncher.Enums;
-using JemExtensions;
 using S = JemExtensions.SpecialExtensions;
-using System.ComponentModel;
 
 namespace BedrockLauncher.ViewModels
 {
@@ -28,6 +30,7 @@ namespace BedrockLauncher.ViewModels
         private void ProgressBarModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(Show)) GetProgressBarAnim();
+            //else if (e.PropertyName == nameof(AllowPlaying))
         }
 
         #endregion
@@ -38,15 +41,26 @@ namespace BedrockLauncher.ViewModels
 
         public bool AllowCancel { get; set; }
         public bool IsGameRunning { get; set; }
+        public bool PlayButtonLanguageChanged { get; set; } = false;
         public string PlayButtonString
         {
             get
             {
-                Depends.On(IsGameRunning);
-                if (IsGameRunning) return App.Current.FindResource("GameTab_PlayButton_Kill_Text").ToString();
-                else return App.Current.FindResource("GameTab_PlayButton_Text").ToString();
+                Depends.On(IsGameRunning, PlayButtonLanguageChanged);
+                if (IsGameRunning) return Application.Current.FindResource("GameTab_PlayButton_Kill_Text").ToString();
+                else return Application.Current.FindResource("InstallationsPage_PlayButton").ToString();
             }
         }
+        public string PlayEditorButtonString
+        {
+            get
+            {
+                Depends.On(IsGameRunning, PlayButtonLanguageChanged);
+                if (IsGameRunning) return Application.Current.FindResource("GameTab_PlayButton_Kill_Text").ToString();
+                else return Application.Current.FindResource("CreatorToolsPage_PlayEditorButton").ToString();
+            }
+        }
+
         public bool AllowEditing
         {
             get
@@ -98,7 +112,7 @@ namespace BedrockLauncher.ViewModels
                 };
                 storyboard.Children.Add(animation);
                 Storyboard.SetTargetProperty(animation, new System.Windows.PropertyPath(ProgressBar.HeightProperty));
-                Storyboard.SetTarget(animation, MainViewModel.Default.ProgressBarGrid);
+                Storyboard.SetTarget(animation, MainDataModel.BackwardsCommunicationHost.ProgressBarGrid);
                 storyboard.Completed += new EventHandler((s, e) => ProgressBarSetContent(Show, false));
                 storyboard.Begin();
             });
@@ -155,7 +169,7 @@ namespace BedrockLauncher.ViewModels
                 return $"{current} MB / {total} MB";
             }
             else if (S.IfAny(CurrentState, LauncherState.isRemovingPackage, LauncherState.isRegisteringPackage, LauncherState.isExtracting)) return $"{CurrentProgress}%";
-            else if (CurrentState == LauncherState.isBackingUp) return $"{CurrentProgress} / {TotalProgress}";
+            else if (S.IfAny(CurrentState, LauncherState.isBackingUp, LauncherState.isUninstalling)) return $"{CurrentProgress} / {TotalProgress}";
             else return string.Empty;
 
         }
