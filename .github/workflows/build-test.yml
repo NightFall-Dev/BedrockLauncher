@@ -9,10 +9,11 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-        
-      - name: Checkout submodules
-        run: git submodule update --remote --init --recursive
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+          submodules: recursive
 
       - name: Use GitHub build targets
         shell: bash
@@ -38,3 +39,4 @@ jobs:
         with:
           name: release
           path: BedrockLauncher/bin/Release/net*.*-windows*.*.*.*
+          compression-level: 0
