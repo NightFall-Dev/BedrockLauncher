@@ -32,7 +32,7 @@ namespace BedrockLauncher
             RuntimeHandler.LogStartupInformation();
             RuntimeHandler.ValidateOSArchitecture();
             Trace.WriteLine("Application Starting...");
-            if (CheckForWindowsVersion() && CheckForVCRuntime())
+            if (/*CheckForWindowsVersion() &&*/ CheckForVCRuntime() && RuntimeHandler.EnableDeveloperMode())
             {
                 var application = new App();
                 application.Startup += OnApplicationInitalizing;
@@ -45,7 +45,7 @@ namespace BedrockLauncher
             Trace.WriteLine("Application Initalization Started!");
             StartupArgsHandler.SetStartupArgs(e.Args);
             StartupArgsHandler.RunPreStartupArgs();
-            RuntimeHandler.EnableDeveloperMode();
+            //RuntimeHandler.EnableDeveloperMode(); // Removed 480e170fd1681c61db1dbf9b40b747ef3aea420b
             Trace.WriteLine("Application Initalization Finished!");
         }
         public static async Task OnApplicationLoaded()
@@ -105,6 +105,11 @@ namespace BedrockLauncher
             if (!result)
             {
                 Trace.WriteLine("You need VC++ Runtime " + minimumVersionS + " or higher to run this application! Please download it!");
+                System.Windows.Forms.MessageBox.Show("You need VC++ Runtime " + minimumVersionS + " or higher to run this application! Please download it!", "Error");
+            }
+            else
+            {
+                Trace.WriteLine("VC++ Runtime OK");
             }
             return result;
         }
@@ -126,6 +131,11 @@ namespace BedrockLauncher
             if (!result)
             {
                 Trace.WriteLine("This application only works on Windows version " + minimumVersionS + " or above!");
+                System.Windows.Forms.MessageBox.Show("This application only works on Windows version " + minimumVersionS + " or above!", "Error");
+            }
+            else
+            {
+                Trace.WriteLine("Windows Version OK");
             }
             return result;
         }

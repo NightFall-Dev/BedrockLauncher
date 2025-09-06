@@ -277,7 +277,9 @@ namespace BedrockLauncher
             get
             {
                 RemovalOptions options = new RemovalOptions();
-                options |= RemovalOptions.RemoveForAllUsers;
+                //options |= RemovalOptions.RemoveForAllUsers;
+                // Use default removal (current user only) instead of RemoveForAllUsers to avoid requiring admin privileges
+                // RemovalOptions.RemoveForAllUsers requires administrator privileges
                 return options;
             }
         }

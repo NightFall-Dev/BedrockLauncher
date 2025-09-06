@@ -373,12 +373,15 @@ namespace BedrockLauncher.Handlers
                 if (Directory.Exists(v.GameDirectory))
                     await DirectoryExtensions.DeleteAsync(v.GameDirectory, (x, y, phase) => ProgressWrapper(x, y, phase));
 
-                var fileStream = File.OpenRead(pkgPath);
+                using var fileStream = File.OpenRead(pkgPath);
                 var progress = new Progress<ZipProgress>();
                 progress.ProgressChanged += (s, z) => MainDataModel.Default.ProgressBarState.SetProgressBarProgress(currentProgress: z.Processed, totalProgress: z.Total);
-                await Task.Run(() => new ZipArchive(fileStream).ExtractToDirectory(v.GameDirectory, progress, cancelSource));
+                await Task.Run(() =>
+                {
+                    using var zipArchive = new ZipArchive(fileStream);
+                    zipArchive.ExtractToDirectory(v.GameDirectory, progress, cancelSource);
+                });
 
-                fileStream.Close();
                 await File.WriteAllTextAsync(v.IdentificationPath, v.PackageID);
                 File.Delete(Path.Combine(v.GameDirectory, "AppxSignature.p7x"));
 
@@ -418,7 +421,7 @@ namespace BedrockLauncher.Handlers
         {
             try
             {
-                foreach (var pkg in PM.FindPackages(Constants.GetPackageFamily(v.Type)))
+                foreach (var pkg in PM.FindPackagesForUser(string.Empty, Constants.GetPackageFamily(v.Type)))
                 {
                     string location;
 
@@ -475,7 +478,13 @@ namespace BedrockLauncher.Handlers
 
 
                     DirectoryInfo profileDir = Directory.CreateDirectory(ProfileFolder);
-                    SymLinkHelper.CreateSymbolicLink(PackageFolder, ProfileFolder, SymLinkHelper.SymbolicLinkType.Directory);
+					
+                    bool symlinkCreated = SymLinkHelper.CreateSymbolicLinkSafe(PackageFolder, ProfileFolder, SymLinkHelper.SymbolicLinkType.Directory);
+                    if (!symlinkCreated)
+                    {
+                        throw new SaveRedirectionFailedException(new Exception("Failed to create symbolic link. Ensure Developer Mode is enabled or run as administrator."));
+                    }
+                    
                     DirectoryInfo pkgDir = Directory.CreateDirectory(PackageFolder);
                     DirectoryInfo lsDir = Directory.CreateDirectory(LocalStateFolder);
 
@@ -504,7 +513,7 @@ namespace BedrockLauncher.Handlers
                     pkgDir.SetAccessControl(pkgSecurity);
 
                     var profileSecurity = profileDir.GetAccessControl();
-                    profileSecurity.SetOwner(owner);
+                    //profileSecurity.SetOwner(owner);// Removed 6ba7bf554710e3d24262da2b753f06408083570f BedrockLauncher/issues/664#issue-3350028184
                     profileSecurity.AddAccessRule(au_access_rules);
                     profileSecurity.AddAccessRule(owner_access_rules);
                     needed_rules.ForEach(x => profileSecurity.AddAccessRule(x));

@@ -142,7 +142,9 @@ namespace BedrockLauncher.Pages.Settings.General
             Properties.LauncherSettings.Default.Save();
 
             string currentDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            string path = System.IO.Path.Combine(currentDir, "BedrockLauncher.exe");
+            //string ParentDir = Directory.GetParent(currentDir).FullName;
+            string path = System.IO.Path.Combine(currentDir, "BedrockLauncher.exe");// current directory, find process path
+            //string path = System.IO.Path.Combine(ParentDir, "StartBedrockLauncher.exe");// up one directory, find process path
             StartProcess(path);
             Trace.WriteLine(path);
             void StartProcess(string path)
@@ -150,7 +152,7 @@ namespace BedrockLauncher.Pages.Settings.General
                 var startInfo = new ProcessStartInfo(path)
                 {
                     UseShellExecute = true,
-                    Verb = "runas"
+                    Verb = "open"
                 };
                 Process.Start(startInfo);
                 Application.Current.Shutdown();

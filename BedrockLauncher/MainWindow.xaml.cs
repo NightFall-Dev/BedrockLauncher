@@ -68,7 +68,12 @@ namespace BedrockLauncher
                 StartupArgsHandler.RunStartupArgs();
 
                 bool isFirstLaunch = Properties.LauncherSettings.Default.GetIsFirstLaunch(MainDataModel.Default.Config.profiles.Count());
-                if (isFirstLaunch) MainViewModel.Default.SetOverlayFrame(new WelcomePage(), true);
+                if (isFirstLaunch) 
+                {
+                    MainViewModel.Default.SetOverlayFrame(new WelcomePage(), true);
+                    // Show Developer Mode guidance on first launch if not enabled
+                    RuntimeHandler.ShowDeveloperModeGuidance();
+                }
             }
         }
 
